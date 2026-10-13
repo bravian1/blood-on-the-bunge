@@ -66,4 +66,40 @@
   let agents = [];
   const MAX_CROWD = 260, MAX_POLICE = 24;
 
+  /* ---------- ground: the 2D map itself, drawn into a texture ---------- */
+  const GROUND_CSS = `
+    .m-green path{fill:#dde3cc}.m-minor path{fill:none;stroke:#d9cfbe;stroke-width:1.4}
+    .m-road path{fill:none;stroke:#fbf8f2;stroke-width:7;stroke-linecap:round}
+    .m-road path.m-trunk,.m-road path.m-motorway{stroke-width:11}
+    .m-parl{fill:rgba(179,18,27,.18);stroke:#b3121b;stroke-width:2.5}
+    .m-lbl{font:22px Impact,'Arial Narrow',sans-serif;letter-spacing:.06em;fill:#b3121b}
+    .m-road-lbl{font:600 10px monospace;letter-spacing:.2em;fill:#8b8172}`;
+  const groundTexture = () => new Promise(resolve => {
+    const c = svgEl.cloneNode(true);
+    c.querySelectorAll(".m-bld, defs").forEach(n => n.remove());
+    c.querySelectorAll(".ov > .L").forEach(n => { if (!n.classList.contains("lbl-base")) n.remove(); else n.removeAttribute("class"); });
+    c.querySelector(".m-lbl--parl")?.remove();   // the 3D building is labelled by its form
+    c.setAttribute("viewBox", "0 0 1000 786");
+    c.setAttribute("width", "2048"); c.setAttribute("height", "1610");
+    c.removeAttribute("class"); c.removeAttribute("style");
+    const st = document.createElementNS("http://www.w3.org/2000/svg", "style");
+    st.textContent = GROUND_CSS; c.prepend(st);
+    const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bg.setAttribute("width", "1000"); bg.setAttribute("height", "786"); bg.setAttribute("fill", "#ece5d8");
+    c.insertBefore(bg, st.nextSibling);
+    const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(c)], { type: "image/svg+xml" }));
+    const img = new Image();
+    img.onload = () => {
+      const cv = document.createElement("canvas"); cv.width = 2048; cv.height = 1610;
+      cv.getContext("2d").drawImage(img, 0, 0, 2048, 1610);
+      URL.revokeObjectURL(url);
+      const tex = new T.CanvasTexture(cv);
+      tex.encoding = T.sRGBEncoding;
+      tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      resolve(tex);
+    };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+
 })();
