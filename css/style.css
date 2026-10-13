@@ -192,6 +192,26 @@ a { color: inherit; }
   .stat:nth-child(-n+2) { border-bottom: 1px dashed rgba(0,0,0,.25); }
 }
 
+/* ---------- two-col ---------- */
+.two-col {
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(28px, 5vw, 72px);
+  width: min(1180px, 100% - 2 * var(--gutter));
+  margin: 0 auto 140px;
+  align-items: start;
+}
+.two-col__media { position: sticky; top: 90px; }
+.two-col--flip .two-col__media { order: 2; }
+.kicker-head {
+  font: 400 clamp(36px, 4vw, 60px)/.95 var(--f-display); text-transform: uppercase;
+  margin: 0 0 .6em;
+}
+.kicker-head .kicker { display: block; margin-bottom: 1em; }
+@media (max-width: 860px) {
+  .two-col { grid-template-columns: 1fr; }
+  .two-col__media { position: static; }
+  .two-col--flip .two-col__media { order: 0; }
+}
+
 /* =========================================================
    HERO — THE LIVESTREAM
    ========================================================= */
