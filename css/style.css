@@ -781,6 +781,47 @@ a { color: inherit; }
   .map__note { display: none; }
 }
 
+/* 3D map */
+.map__stage { position: relative; line-height: 0; }
+.map3d {
+  position: absolute; inset: 0; width: 100% !important; height: 100% !important;
+  border-radius: 4px; opacity: 0; visibility: hidden; transition: opacity .35s, visibility .35s;
+}
+.map__stage.is-3d .map3d { opacity: 1; visibility: visible; }
+.map__stage.is-3d .map__svg { visibility: hidden; transition: visibility 0s .35s; }
+.map3d__labels { position: absolute; inset: 0; overflow: hidden; pointer-events: none; opacity: 0; transition: opacity .3s; line-height: 1.2; }
+.map__stage.is-3d .map3d__labels { opacity: 1; }
+.map__stage.is-leaving .map3d__labels { opacity: 0; }
+.m3-lbl {
+  position: absolute; left: 0; top: 0; white-space: nowrap;
+  font: 500 10.5px/1.2 var(--f-mono); letter-spacing: .04em;
+  color: var(--ink); background: rgba(243, 238, 228, .92); padding: 4px 6px; border-radius: 2px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.15); margin-top: -6px; transition: opacity .2s;
+}
+.m3-lbl::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 1px; height: 5px; background: currentColor; opacity: .6; }
+.m3-lbl--red { color: #fff; background: var(--red); }
+.m3-lbl--yellow { color: var(--black); background: #f2c230; }
+.m3-lbl--crowd { color: #fff; background: #1d6b33; }
+.m3-lbl--police { color: #fff; background: #1b1d22; }
+.m3-lbl--dist { background: #fff; font-weight: 600; }
+.map__mode {
+  position: absolute; top: 10px; right: 10px; z-index: 3; display: none;
+  background: rgba(243, 238, 228, .94); border: 1px solid rgba(0,0,0,.15); border-radius: 30px; padding: 3px;
+}
+.map.has-3d .map__mode { display: flex; }
+.map__mode button {
+  font: 500 10.5px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase;
+  border: 0; background: none; color: var(--ink); padding: 7px 12px; border-radius: 30px; cursor: pointer;
+}
+.map__mode button[aria-pressed="true"] { background: var(--black); color: var(--paper); }
+.map__mode button:focus-visible { outline: 2px solid var(--red); outline-offset: 1px; }
+
+@media (max-width: 860px) {
+  .m3-lbl { font-size: 8.5px; padding: 2px 4px; }
+  .map__mode { top: 6px; right: 6px; padding: 2px; }
+  .map__mode button { font-size: 9px; padding: 5px 8px; }
+}
+
 /* footage loops */
 .clip { position: relative; }
 .clip video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 3px; background: #111; display: block; }
