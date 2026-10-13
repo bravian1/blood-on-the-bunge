@@ -437,6 +437,79 @@
         });
       });
 
+      /* ---------- timeline: clock + live map ---------- */
+      const clock = $(".clock"), face = $(".clock__time");
+      const map = $(".map"), svg = $(".map__svg"), layers = $$(".map .L");
+      const VIEW = {
+        full: "0 0 1000 786",
+        road: "250 190 420 330",
+        grounds: "280 290 420 330",
+        eve: "190 150 600 471"
+      };
+      const VIEW_FOR = { "1420": "road", "142x": "road", "1457": "grounds", "1504": "grounds", "eve": "eve" };
+      /* 3D: the map shifts into a three.js model from 14:20 on (or whenever the reader picks 3D).
+         three.js is fetched only as the timeline approaches; without WebGL the map simply stays 2D. */
+      const stage = document.createElement("div");
+      stage.className = "map__stage";
+      svg.before(stage); stage.append(svg);
+      const THREE_STATES = new Set(["1420", "142x", "1457", "1504", "eve"]);
+      const modeBtns = $$(".map__mode button");
+      let mode = "auto", m3 = null;
+      const apply3d = instant => {
+        if (!m3) return;
+        const key = map.dataset.s;
+        const want = mode === "3d" || (mode === "auto" && THREE_STATES.has(key));
+        const vb = VIEW[VIEW_FOR[key] || "full"];
+        if (want) m3.enter(key, vb, instant || !motion); else m3.exit(vb, instant || !motion);
+        modeBtns.forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === (want ? "3d" : "2d")));
+      };
+      modeBtns.forEach(b => b.addEventListener("click", () => { mode = b.dataset.mode; apply3d(); }));
+      const loadScript = src => new Promise((ok, fail) => {
+        const s = document.createElement("script");
+        s.src = src; s.onload = ok; s.onerror = fail;
+        document.head.append(s);
+      });
+      const hasWebGL = (() => {
+        try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); }
+        catch (e) { return false; }
+      })();
+      if (hasWebGL) new IntersectionObserver((es, obs) => {
+        if (!es.some(e => e.isIntersecting)) return;
+        obs.disconnect();
+        loadScript("js/vendor/three.min.js")
+          .then(() => loadScript("assets/map3d-data.js"))
+          .then(() => loadScript("js/map3d.js"))
+          .then(() => window.Map3D && window.Map3D.init(stage, svg))
+          .then(ok => { if (!ok) return; m3 = window.Map3D; map.classList.add("has-3d"); apply3d(true); })
+          .catch(() => {});
+      }, { rootMargin: "250% 0px" }).observe($(".timeline"));
+
+      const setMap = key => {
+        if (map.dataset.s === key) return;
+        map.dataset.s = key;
+        layers.forEach(l => l.classList.toggle("on", l.dataset.show.split(" ").includes(key)));
+        gsap.to(svg, { attr: { viewBox: VIEW[VIEW_FOR[key] || "full"] }, duration: motion ? 1.1 : 0, ease: "power3.inOut", overwrite: true });
+        apply3d();
+      };
+      const setTime = li => {
+        $$(".tl").forEach(x => x.classList.toggle("is-active", x === li));
+        setMap(li.dataset.map);
+        if (face.textContent === li.dataset.time) return;
+        clock.classList.toggle("is-blood", li.classList.contains("tl--blood"));
+        if (motion) gsap.fromTo(face, { yPercent: 40, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .45, ease: "power3.out" });
+        face.textContent = li.dataset.time;
+      };
+      const tls = $$(".tl");
+      map.dataset.s = "";
+      setMap("0930");
+      const pickTime = () => {
+        const mid = innerHeight * .55;
+        let cur = tls[0];
+        for (const li of tls) if (li.getBoundingClientRect().top < mid) cur = li;
+        setTime(cur);
+      };
+      ScrollTrigger.create({ trigger: ".timeline__list", start: "top bottom", end: "bottom top", onUpdate: pickTime, onRefresh: pickTime });
+
     });
 
     // Images and fonts change layout as they arrive; re-measure the triggers when they do.
