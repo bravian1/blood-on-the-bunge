@@ -1,0 +1,9 @@
+# local flower store written by dev/server.py
+dev/flowers.json
+dev/flowers.json.tmp
+
+__pycache__/
+*.pyc
+.vercel/
+node_modules/
+.DS_Store
