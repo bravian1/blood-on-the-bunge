@@ -304,6 +304,59 @@ a { color: inherit; }
   .tl { min-height: 0; }
 }
 
+/* ---------- chapters ---------- */
+.chapter { margin: 0 auto 120px; }
+.chapter__head { width: min(1180px, 100% - 2 * var(--gutter)); margin: 0 auto 60px; border-top: 6px solid var(--black); padding-top: 26px; }
+.memorial { width: min(1000px, 100% - 2 * var(--gutter)); margin: 0 auto 80px; display: grid; gap: clamp(20px, 4vw, 48px); }
+.memorial--two { grid-template-columns: 1fr 1fr; max-width: 760px; }
+.memorial--feature { grid-template-columns: minmax(0, 4fr) minmax(0, 6fr); align-items: start; width: min(1180px, 100% - 2 * var(--gutter)); }
+.person { margin: 0; }
+.person img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; filter: grayscale(1) contrast(1.05); border-radius: 3px; transition: filter .8s; }
+.person:hover img, .person.is-color img { filter: none; }
+.person figcaption { margin-top: 14px; border-top: 2px solid var(--red); padding-top: 10px; }
+.person b { display: block; font: 400 clamp(30px, 3vw, 44px)/1 var(--f-display); text-transform: uppercase; }
+.person span { display: block; margin-top: 6px; font: 400 12px/1.5 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.person em { display: block; margin-top: 8px; font-size: .92em; }
+.person--large img { aspect-ratio: 1; }
+@media (max-width: 860px) {
+  .memorial--feature { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .memorial--two { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .person b { font-size: 24px; }
+}
+
+/* ---------- casefile ---------- */
+.casefile { width: min(1180px, 100% - 2 * var(--gutter)); margin: 0 auto 100px; }
+.casefile__tab {
+  display: inline-block; background: var(--black); color: var(--paper);
+  font: 500 11.5px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase;
+  padding: 10px 16px; border-radius: 4px 4px 0 0;
+}
+.casefile__body {
+  display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 56px);
+  background: var(--black); color: #ece6db; padding: clamp(18px, 3vw, 40px);
+  border-radius: 0 4px 4px 4px;
+}
+.casefile .photo figcaption { color: #bdb5a8; }
+.casefile .photo figcaption span::before { color: #ff4a4a; }
+.casefile .tc { color: #ff6b6b; }
+.casefile__notes p { margin: 0 0 1em; font-size: .95em; }
+.casefile__notes b { color: #fff; }
+.casefile__notes q { font-style: italic; color: #fff; }
+@media (max-width: 860px) { .casefile__body { grid-template-columns: 1fr; } }
+
+.checklist { list-style: none; padding: 0; margin: 1.2em 0 1.4em; font: 400 13px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; }
+.checklist li { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px dashed rgba(255,255,255,.15); }
+.checklist li::before {
+  content: ""; width: 14px; height: 14px; flex: none;
+  border: 1.5px solid #ff4a4a; border-radius: 2px;
+  background: transparent; transition: background .3s;
+}
+.checklist li.on::before, .checklist li.hit::before { background: #ff4a4a; box-shadow: inset 0 0 0 2px var(--black); }
+.checklist li.hit { color: #ff6b6b; }
+.checklist--dark li { border-color: rgba(255,255,255,.15); }
+
 /* =========================================================
    HERO — THE LIVESTREAM
    ========================================================= */
