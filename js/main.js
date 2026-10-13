@@ -553,6 +553,13 @@
         onUpdate: s => setScrub(mapFrame(s.progress) / SCRUB_N)
       });
 
+      /* ---------- case-file checklist ticks off ---------- */
+      $$(".casefile .checklist").forEach(list => ScrollTrigger.create({
+        trigger: list, start: "top 70%", once: true,
+        onEnter: () => $$("li", list).forEach((li, i) =>
+          setTimeout(() => li.classList.add("on"), motion ? i * 280 : 0))
+      }));
+
     });
 
     // Images and fonts change layout as they arrive; re-measure the triggers when they do.
