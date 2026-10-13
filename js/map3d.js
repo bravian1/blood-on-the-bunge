@@ -209,4 +209,32 @@
     scene.add(rangeLine);
   };
 
+  /* ---------- HTML labels projected from 3D ---------- */
+  const setLabels = key => {
+    labelsEl.textContent = "";
+    labels = (LABELS[key] || []).map(([text, x, y, h, cls]) => {
+      const el = document.createElement("span");
+      el.className = "m3-lbl" + (cls ? " m3-lbl--" + cls : "");
+      el.textContent = text;
+      labelsEl.append(el);
+      return { el, pos: v3(x, y, h || 8) };
+    });
+    const r = RANGE[key];
+    if (r) {
+      const el = document.createElement("span");
+      el.className = "m3-lbl m3-lbl--dist"; el.textContent = r[2]; labelsEl.append(el);
+      labels.push({ el, pos: v3((r[0][0] + r[1][0]) / 2, (r[0][1] + r[1][1]) / 2, 9) });
+    }
+  };
+  const V = new T.Vector3();
+  const placeLabels = () => {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    labels.forEach(l => {
+      V.copy(l.pos).project(camera);
+      const off = V.z > 1 || Math.abs(V.x) > 1.05 || Math.abs(V.y) > 1.05;
+      l.el.style.opacity = off ? 0 : 1;
+      l.el.style.transform = `translate(${(V.x * .5 + .5) * w}px, ${(-V.y * .5 + .5) * h}px) translate(-50%, -100%)`;
+    });
+  };
+
 })();
