@@ -187,4 +187,39 @@
   }, { threshold: .6 });
   $$("[data-count]").forEach(el => countIO.observe(el));
 
+  /* =========================================================
+     FRAME SCRUBBER (Eric Shieni) — lazy-loads its frames
+     ========================================================= */
+  const SCRUB_N = 198, SPLIT = 96, FPS = 6;
+  const canvas = $(".scrub__canvas"), ctx2d = canvas.getContext("2d");
+  const frames = new Array(SCRUB_N);
+  let wantFrame = 0, loaded = false;
+  const draw = i => {
+    wantFrame = i;
+    let f = frames[i];
+    for (let d = 1; !(f && f.complete && f.naturalWidth) && d < SCRUB_N; d++) f = frames[i - d] || frames[i + d];
+    if (f && f.complete && f.naturalWidth) ctx2d.drawImage(f, 0, 0, canvas.width, canvas.height);
+  };
+  const loadFrames = () => {
+    if (loaded) return; loaded = true;
+    for (let i = 0; i < SCRUB_N; i++) {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = `assets/scrub/${String(i).padStart(3, "0")}.webp`;
+      img.onload = () => { if (Math.abs(i - wantFrame) < 3) draw(wantFrame); };
+      frames[i] = img;
+    }
+  };
+  new IntersectionObserver(es => es.some(e => e.isIntersecting) && loadFrames(), { rootMargin: "150% 0px" })
+    .observe($(".forensic"));
+  const fill = $(".scrub__fill"), head = $(".scrub__head"), tc = $(".scrub__tc"), src = $(".scrub__src");
+  const setScrub = p => {
+    const i = Math.min(SCRUB_N - 1, Math.floor(p * SCRUB_N));
+    draw(i);
+    fill.style.width = head.style.left = (p * 100) + "%";
+    const local = i < SPLIT ? i : i - SPLIT, sec = local / FPS;
+    tc.textContent = `${String(Math.floor(sec / 60)).padStart(2, "0")}:${(sec % 60).toFixed(1).padStart(4, "0")}`;
+    src.textContent = i < SPLIT ? "Footage · parliament grounds" : "BBC 3D reconstruction";
+  };
+
 })();
