@@ -378,6 +378,71 @@
       </div>
     </div>
 
+    <!-- ============ FORENSIC SCROLLY ============ -->
+    <div class="forensic" aria-label="Forensic reconstruction">
+      <div class="forensic__sticky">
+        <div class="forensic__frame" data-state="0">
+          <!-- scene A: scrubbed footage -->
+          <div class="scene scene--scrub">
+            <canvas class="scrub__canvas" width="800" height="450" aria-label="Footage of protesters fleeing parliament's grounds and the BBC's 3D reconstruction of the shooting, stepped through as you scroll."></canvas>
+            <div class="scrub__chapter"><span class="scrub__src">Footage</span></div>
+          </div>
+          <!-- scene B: suspect -->
+          <div class="scene scene--b">
+            <img width="1280" height="720" src="assets/img/soldier-match.webp" alt="A soldier in a matte green helmet and body armour stands at the parliament gate, minutes after the shooting." loading="lazy">
+            <span class="pin pin--1" style="left:52%;top:27%"><i></i><em>Matte green helmet</em></span>
+            <span class="pin pin--2" style="left:63%;top:53%"><i></i><em>Shoulder patch</em></span>
+            <span class="pin pin--3" style="left:56%;top:84%"><i></i><em>Solid-stock rifle, tan boots<br>(matched in other frames)</em></span>
+          </div>
+          <!-- scene C: badge -->
+          <div class="scene scene--c">
+            <img width="1280" height="720" src="assets/img/badge-zoom.webp" alt="Close-up of the suspect's shoulder badge: a Kenyan flag patch in black, red and green." loading="lazy">
+            <div class="swatches"><span style="--c:#111">Black</span><span style="--c:#b3121b">Red</span><span style="--c:#1d6b33">Green</span></div>
+          </div>
+          <div class="scrub__bar" aria-hidden="true">
+            <span class="scrub__label">Scroll to scrub</span>
+            <div class="scrub__track"><i class="scrub__fill"></i><b class="scrub__mark" style="left:48.5%"></b><span class="scrub__head"></span></div>
+            <span class="scrub__tc">00:00.0</span>
+          </div>
+          <div class="forensic__hud">
+            <span class="hud__rec">● REC</span>
+            <span class="hud__tc">25.06.2024 15:04:<b class="hud__sec">00</b></span>
+          </div>
+        </div>
+      </div>
+      <div class="forensic__steps">
+        <div class="step" data-step="0">
+          <p><b>15:04.</b> Protesters are leaving the grounds when the shooting starts. “The video is very clear,” says Faith Odhiambo, president of the Law Society of Kenya. “The protesters were walking out of parliament. When the shooting starts, they were all running out.”</p>
+          <p class="step__hint">Keep scrolling to step through the footage, frame by frame.</p>
+        </div>
+        <div class="step" data-step="1">
+          <p>In the chaos, a figure steps into frame on the far side of the lawn. “You could see he’s clearly aiming,” says Odhiambo. <b>“He was aiming to kill.”</b></p>
+        </div>
+        <div class="step" data-step="2">
+          <p>The BBC placed every image on a <b>3D model of parliament</b>. Eric is the yellow figure at the exit. The shooter, in red, is about <b>25 metres</b> away, and there’s no question where his rifle is pointing.</p>
+        </div>
+        <div class="step" data-step="3">
+          <p>The shooter’s face can’t be seen. But his uniform gives him away. Investigators drew up a list:</p>
+          <ul class="checklist checklist--dark">
+            <li>White shoulder patch</li>
+            <li>Matte green helmet</li>
+            <li>Tan boots</li>
+            <li>Solid-stock rifle</li>
+          </ul>
+        </div>
+        <div class="step" data-step="4">
+          <p>They went through more than <b>150 images</b> taken within ten minutes of the shooting. Many uniforms look alike: wrong headgear, no patch, a different rifle stock. <b>Only one man matched every item on the list.</b></p>
+        </div>
+        <div class="step" data-step="5">
+          <p>Seven minutes after the killing, a photographer caught his shoulder badge up close. It wasn’t white. It was a flag: <b>black, red and green.</b></p>
+          <p>Only one part of Kenya’s security forces officially wears it when deployed at home. Several senior officers in the Kenya Defence Forces confirmed it to the BBC: <b>the army.</b></p>
+        </div>
+        <div class="step step--verdict" data-step="6">
+          <p class="verdict">“All our evidence points to one conclusion: this soldier killed Eric Shieni as he was running away.”</p>
+          <p class="verdict__src">— BBC Africa Eye. The soldier has not been named. The KDF told the BBC that the police watchdog had not asked it to investigate any of its personnel.</p>
+        </div>
+      </div>
+    </div>
   </section>
 
 </div>
