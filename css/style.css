@@ -110,3 +110,23 @@ a { color: inherit; }
 }
 .tc:hover { color: var(--black); }
 .photo--inset { margin: 2rem 0 0; max-width: 340px; }
+
+/* ---------- progress + masthead ---------- */
+.progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 60; }
+.progress span {
+  display: block; height: 100%; width: 100%;
+  transform-origin: 0 50%; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--black) 0 33%, #fff 33% 34%, var(--red) 34% 66%, #fff 66% 67%, var(--green) 67%);
+}
+.masthead {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 14px var(--gutter);
+  color: #f6efe6;
+  transition: background .4s, color .4s, transform .4s var(--ease);
+}
+.masthead.is-paper { color: var(--black); background: rgba(243, 238, 228, .92); backdrop-filter: blur(8px); box-shadow: 0 1px 0 rgba(0,0,0,.08); }
+.masthead.is-hidden { transform: translateY(-100%); }
+.masthead__mark { font: 400 22px/1 var(--f-display); text-transform: uppercase; text-decoration: none; letter-spacing: .02em; }
+.masthead__mark span { color: var(--red); }
+.masthead__date { font: 500 11px/1 var(--f-mono); letter-spacing: .2em; opacity: .7; }
