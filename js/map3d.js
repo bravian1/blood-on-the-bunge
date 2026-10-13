@@ -184,4 +184,29 @@
     police.instanceMatrix.needsUpdate = policeHeads.instanceMatrix.needsUpdate = true;
   };
 
+  /* ---------- markers ---------- */
+  const ringMat = new T.MeshBasicMaterial({ color: 0xc8102e, transparent: true, opacity: .9, side: T.DoubleSide });
+  const pillarMat = new T.MeshBasicMaterial({ color: 0xc8102e, transparent: true, opacity: .42, depthWrite: false });
+  const setRings = key => {
+    ringsGroup.clear();
+    (RINGS[key] || []).forEach(([x, y]) => {
+      const r = new T.Mesh(new T.RingGeometry(4.2, 6, 32), ringMat);
+      r.rotation.x = -Math.PI / 2; r.position.copy(v3(x, y, .4));
+      ringsGroup.add(r);
+      if (key === "eve") {
+        const p = new T.Mesh(new T.CylinderGeometry(2.2, 2.2, 140, 20, 1, true), pillarMat);
+        p.position.copy(v3(x, y, 70));
+        ringsGroup.add(p);
+      }
+    });
+  };
+  const setRange = key => {
+    if (rangeLine) { scene.remove(rangeLine); rangeLine = null; }
+    const r = RANGE[key]; if (!r) return;
+    const g = new T.BufferGeometry().setFromPoints([v3(r[0][0], r[0][1], 3), v3(r[1][0], r[1][1], 3)]);
+    rangeLine = new T.Line(g, new T.LineDashedMaterial({ color: 0x111111, dashSize: 3, gapSize: 2.4 }));
+    rangeLine.computeLineDistances();
+    scene.add(rangeLine);
+  };
+
 })();
