@@ -454,6 +454,57 @@ a { color: inherit; }
 /* the torn edge on dark */
 .live + .paper .torn__shadow { fill: rgba(255, 60, 60, .35); }
 
+/* =========================================================
+   TIMELINE PANEL + MAP
+   ========================================================= */
+.panel { position: sticky; top: 72px; align-self: start; display: grid; gap: 14px; }
+.panel .clock { position: static; display: flex; align-items: center; gap: 16px; }
+.panel .clock__time { font-size: clamp(56px, 5.6vw, 96px); }
+.panel .clock__date { margin: 0; }
+.map { margin: 0; position: relative; }
+.map__svg {
+  display: block; width: 100%; height: auto; max-height: calc(100vh - 230px);
+  background: #ece5d8; border: 1px solid rgba(0,0,0,.12); border-radius: 4px;
+}
+.m-green path { fill: #dde3cc; }
+.m-bld path { fill: #e0d7c6; }
+.m-minor path { fill: none; stroke: #d9cfbe; stroke-width: 1.4; }
+.m-road path { fill: none; stroke: #fbf8f2; stroke-width: 7; stroke-linecap: round; }
+.m-road path.m-trunk, .m-road path.m-motorway { stroke-width: 11; }
+.m-parl { fill: rgba(179, 18, 27, .18); stroke: var(--red); stroke-width: 2.5; }
+.m-lbl { font: 400 22px/1 var(--f-display); letter-spacing: .06em; fill: var(--red); }
+.m-road-lbl { font: 500 10px/1 var(--f-mono); letter-spacing: .2em; fill: #8b8172; }
+.m-note { font: 500 13px/1 var(--f-mono); fill: var(--ink); paint-order: stroke; stroke: #ece5d8; stroke-width: 4px; }
+.m-note.z, .m-dist.z { font-size: 8px; stroke-width: 2.5px; }
+.m-note--big { font: 400 30px/1 var(--f-display); }
+.m-note--red { fill: var(--red); }
+.m-note--crowd { fill: #1d6b33; text-transform: uppercase; letter-spacing: .1em; font-size: 11px; }
+.m-note--police { fill: #111; text-transform: uppercase; letter-spacing: .1em; font-size: 11px; }
+.m-dist { font: 600 13px/1 var(--f-mono); fill: #111; paint-order: stroke; stroke: #ece5d8; stroke-width: 4px; }
+.ah { fill: #1d6b33; }
+.crowd { fill: none; stroke: #1d6b33; stroke-width: 7; stroke-linecap: round; marker-end: url(#ah); stroke-dasharray: 2 14; animation: march 1s linear infinite; }
+@keyframes march { to { stroke-dashoffset: -16; } }
+.police { stroke: #111; stroke-width: 9; stroke-linecap: square; }
+.range { stroke: #111; stroke-width: 2; stroke-dasharray: 5 4; }
+.shooter { fill: #111; stroke: #ff3b3b; stroke-width: 3; }
+.x path { stroke: var(--red); stroke-width: 4.5; stroke-linecap: round; }
+.fire circle { fill: #ff8a1f; opacity: .35; animation: flick .5s infinite alternate; }
+.fire path { fill: #ff5a00; }
+@keyframes flick { to { opacity: .7; transform: scale(1.25); } }
+.pulse { fill: none; stroke: #111; stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: pulse 1.6s infinite; }
+.pulse--red { stroke: var(--red); }
+@keyframes pulse { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+.L { opacity: 0; transition: opacity .5s; pointer-events: none; }
+.L.on { opacity: 1; }
+.map__note { margin-top: 8px; font: 400 10.5px/1.4 var(--f-mono); color: var(--muted); letter-spacing: .03em; }
+@media (max-width: 860px) {
+  .panel { position: sticky; top: 50px; z-index: 6; background: var(--paper); padding: 8px 0 6px; grid-template-columns: auto 1fr; align-items: center; gap: 10px; box-shadow: 0 10px 18px -12px rgba(0,0,0,.3); }
+  .panel .clock__time { font-size: 38px; }
+  .panel .clock__date { display: none; }
+  .map__svg { max-height: 34vh; }
+  .map__note { display: none; }
+}
+
 /* footage loops */
 .clip { position: relative; }
 .clip video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 3px; background: #111; display: block; }
