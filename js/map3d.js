@@ -283,4 +283,96 @@
   };
   const kick = () => { if (!raf && active && visible) { last = performance.now(); raf = requestAnimationFrame(frame); } };
 
+  /* ---------- public ---------- */
+  const setState = key => {
+    state = key;
+    setCrowd(key); setPolice(key); setRings(key); setRange(key); setLabels(key);
+    const sh = SHOOTER[key];
+    shooter.visible = !!sh;
+    if (sh) { shooter.position.copy(v3(sh.at[0], sh.at[1])); const s = FIG * 1.35; shooter.scale.set(s, sh.kneel ? s * .62 : s, s); }
+    eric.visible = !!ERIC[key];
+    if (ERIC[key]) eric.position.copy(v3(ERIC[key][0], ERIC[key][1]));
+    fire.visible = fireLight.visible = FIRE.has(key);
+  };
+
+  window.Map3D = {
+    async init(stageEl, svg) {
+      stage = stageEl; svgEl = svg;
+      renderer = new T.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+      renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+      renderer.outputEncoding = T.sRGBEncoding;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = T.PCFSoftShadowMap;
+      canvas = renderer.domElement; canvas.className = "map3d";
+      canvas.setAttribute("aria-hidden", "true");
+      labelsEl = document.createElement("div"); labelsEl.className = "map3d__labels";
+      stage.append(canvas, labelsEl);
+
+      scene = new T.Scene();
+      scene.background = new T.Color(0xece5d8);
+      scene.fog = new T.Fog(0xece5d8, 900, 2300);
+      camera = new T.PerspectiveCamera(FOV, 1, 1, 6000);
+
+      scene.add(new T.HemisphereLight(0xffffff, 0xb7ab95, .72));
+      const sun = new T.DirectionalLight(0xfff4e6, .62);
+      sun.position.set(-260, 520, 180);
+      sun.castShadow = true;
+      Object.assign(sun.shadow.camera, { left: -620, right: 620, top: 520, bottom: -520, near: 10, far: 1600 });
+      sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -.0006;
+      scene.add(sun);
+
+      const tex = await groundTexture();
+      const ground = new T.Mesh(new T.PlaneGeometry(1000, 786), new T.MeshLambertMaterial(tex ? { map: tex } : { color: 0xece5d8 }));
+      ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
+      scene.add(ground);
+      const apron = new T.Mesh(new T.PlaneGeometry(7000, 7000), new T.MeshLambertMaterial({ color: 0xe3dbcc }));
+      apron.rotation.x = -Math.PI / 2; apron.position.y = -.3; apron.receiveShadow = true;
+      scene.add(apron);
+
+      const bMat = new T.MeshLambertMaterial({ color: 0xdcd5c8 });
+      const clockMat = new T.MeshLambertMaterial({ color: 0xcfc6b6 });
+      const edge = new T.LineBasicMaterial({ color: 0x8f8673, transparent: true, opacity: .35 });
+      DATA.buildings.forEach(b => extrude(shapeOf(b.p), b.h, b.t === "clock" ? clockMat : bMat, edge));
+      const pr = DATA.parliament;
+      extrude(shapeOf(pr.outer, pr.inner), pr.h, new T.MeshLambertMaterial({ color: 0xd9a8a2 }),
+        new T.LineBasicMaterial({ color: 0xb3121b, transparent: true, opacity: .7 }));
+
+      [crowd, crowdHeads] = instanced(MAX_CROWD, 0x3b3631);
+      [police, policeHeads] = instanced(MAX_POLICE, 0x1f3f78);
+      shooter = figure(0xe11d2a, 0x5a0008);
+      eric = figure(0xf2c230, 0x4a3600);
+      ringsGroup = new T.Group(); scene.add(ringsGroup);
+      fire = new T.Group();
+      const flame = new T.Mesh(new T.ConeGeometry(6, 16, 12).translate(0, 8, 0), new T.MeshBasicMaterial({ color: 0xff7a1a }));
+      fireLight = new T.PointLight(0xff7a1a, 1.8, 120, 1.6);
+      fireLight.position.y = 10;
+      fire.add(flame, fireLight);
+      fire.position.copy(v3(452, 316, 2));
+      scene.add(fire);
+
+      new IntersectionObserver(es => { visible = es[0].isIntersecting; kick(); }).observe(stage);
+      new ResizeObserver(resize).observe(canvas);
+      resize();
+      return true;
+    },
+    // Swap in from 2D: start overhead exactly where the SVG is framed, then tilt into the scene.
+    enter(key, viewBox, instant) {
+      if (state !== key) setState(key);
+      const target = CAMS[key] || CAMS["1420"];
+      if (!active) {
+        Object.assign(cam, topDownFor(viewBox));
+        active = true; stage.classList.add("is-3d"); kick();
+        fly(target, instant ? 0 : 1.8, "power2.inOut");
+      } else fly(target, instant ? 0 : 1.6);
+    },
+    // Back to 2D: settle straight overhead over the SVG's framing, then hand over.
+    exit(viewBox, instant) {
+      if (!active) return;
+      const done = () => { active = false; stage.classList.remove("is-3d"); };
+      if (instant) { done(); return; }
+      stage.classList.add("is-leaving");
+      fly(topDownFor(viewBox), 1.1, "power2.inOut", () => { stage.classList.remove("is-leaving"); done(); });
+    },
+    get active() { return active; }
+  };
 })();
