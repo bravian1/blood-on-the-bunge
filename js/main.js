@@ -141,4 +141,22 @@
   setInterval(tickClock, 1000);
   if (!reduce) setInterval(pushHeart, 380);
 
+  /* ---------- counters ---------- */
+  const countIO = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target, end = +el.dataset.count, suf = el.dataset.suffix || "";
+      countIO.unobserve(el);
+      if (reduce || end === 0) { el.textContent = fmt(end) + suf; return; }
+      const t0 = performance.now(), dur = 1400;
+      const tick = now => {
+        const p = Math.min(1, (now - t0) / dur), eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt(end * eased) + (p === 1 ? suf : "");
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }, { threshold: .6 });
+  $$("[data-count]").forEach(el => countIO.observe(el));
+
 })();
