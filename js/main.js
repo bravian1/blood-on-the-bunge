@@ -350,4 +350,81 @@
     src.textContent = i < SPLIT ? "Footage · parliament grounds" : "BBC 3D reconstruction";
   };
 
+  /* =========================================================
+     SCROLL CHOREOGRAPHY — needs GSAP, which loads after this file
+     (so the livestream above never waits on the CDN)
+     ========================================================= */
+  const initMotion = () => {
+    if (!window.gsap || !window.ScrollTrigger) {
+      $$(".type .ch").forEach(c => c.classList.add("on"));
+      return;
+    }
+    gsap.registerPlugin(ScrollTrigger);
+    // Mobile address bars resize the viewport while scrolling; don't re-measure everything when they do.
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
+    gsap.to(".progress span", { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: .3 } });
+
+    const mm = gsap.matchMedia();
+    mm.add({ motion: "(prefers-reduced-motion: no-preference)", wide: "(min-width: 761px)" }, ctx => {
+      const { motion, wide } = ctx.conditions;
+
+      /* ---------- HERO: the stream follows the day, then cuts out ---------- */
+      const alarm = document.createElement("div");
+      alarm.className = "live__alarm";
+      alarm.style.background = "radial-gradient(80% 70% at 50% 50%, rgba(255,20,30,.0), rgba(190,0,10,.55))";
+      alarm.style.opacity = 0;
+      $(".live__stage").append(alarm);
+
+      const phoneVideo = $(".phone__video");
+      const centerX = () => wide ? innerWidth / 2 - (phone.offsetLeft + phone.offsetWidth / 2) : 0;
+      // Each beat gets its own label plus a hold, so it stays on screen for a stretch of scroll.
+      // On phones the scroll also snaps to these beats, so a single flick can't skip one.
+      const tl = gsap.timeline({
+        defaults: { ease: "power2.inOut" },
+        scrollTrigger: {
+          trigger: ".live", start: "top top", end: "bottom bottom",
+          scrub: motion ? (wide ? .5 : .1) : true, invalidateOnRefresh: true,
+          snap: wide || !motion ? false : { snapTo: "labelsDirectional", duration: { min: .25, max: .7 }, delay: .08, ease: "power1.inOut" },
+          onUpdate: () => {
+            const t = tl.time();
+            setPhase(t < 2.4 ? "calm" : t < 3.3 ? "breach" : "alarm");
+            phone.classList.toggle("is-glitching", motion && t > 5.2 && t < 6.1);
+            if (t > 6.1) phoneVideo.pause(); else if (phoneVideo.paused) phoneVideo.play().catch(() => {});
+          }
+        }
+      });
+      tl.addLabel("live", 0)
+        .to(".live__intro", { autoAlpha: 0, x: wide ? -80 : 0, y: wide ? 0 : -40, duration: 1.4 }, 1)
+        .to(phone, wide ? { x: centerX, scale: () => Math.min(1.12, innerHeight * .94 / phone.offsetHeight), duration: 1.8 } : { duration: 1.8 }, 1)
+        .to(".phone__top, .phone__loc", { opacity: 1, duration: .8 }, wide ? 0 : 1.8)
+        .addLabel("stream", 2.8)
+        .to(alarm, { opacity: 1, duration: 1.4 }, 3.3)
+        .addLabel("alarm", 4.7)
+        .to(".phone__glitch", { opacity: 1, duration: .7, ease: "steps(4)" }, 5.2)
+        .to(".phone__lost", { opacity: 1, duration: .5, ease: "steps(3)" }, 6)
+        .addLabel("lost", 6.6)
+        .to(phone, { autoAlpha: 0, scale: wide ? .9 : 1, duration: .9 }, 7.6)
+        .to([".live__bg", alarm], { opacity: 0.12, duration: .9 }, 7.6)
+        .fromTo(".outro__line:not(.outro__line--2)", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .9 }, 8.3)
+        .addLabel("outro1", 9.3)
+        .to(".outro__line:not(.outro__line--2)", { opacity: 0, y: -20, duration: .6 }, 10.4)
+        .fromTo(".outro__line--2", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .9 }, 11)
+        .addLabel("outro2", 12)
+        .to({}, { duration: .9 })
+        .addLabel("end");          // lets the snap release you into the page below
+
+    });
+
+    // Images and fonts change layout as they arrive; re-measure the triggers when they do.
+    let rt;
+    const refresh = () => { clearTimeout(rt); rt = setTimeout(() => ScrollTrigger.refresh(), 150); };
+    addEventListener("load", refresh);
+    document.fonts?.ready.then(refresh);
+    $$("img").forEach(img => img.complete || img.addEventListener("load", refresh, { once: true }));
+  };
+  // Deferred scripts run before DOMContentLoaded, while readyState is already "interactive",
+  // so wait for the event itself: by then the GSAP files after this one have run.
+  if (document.readyState === "complete") initMotion();
+  else document.addEventListener("DOMContentLoaded", initMotion, { once: true });
 })();
