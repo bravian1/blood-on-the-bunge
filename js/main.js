@@ -560,6 +560,11 @@
           setTimeout(() => li.classList.add("on"), motion ? i * 280 : 0))
       }));
 
+      /* ---------- portraits turn to colour once seen ---------- */
+      $$(".person").forEach(p => ScrollTrigger.create({
+        trigger: p, start: "top 55%", once: true,
+        onEnter: () => setTimeout(() => p.classList.add("is-color"), 600)
+      }));
     });
 
     // Images and fonts change layout as they arrive; re-measure the triggers when they do.
