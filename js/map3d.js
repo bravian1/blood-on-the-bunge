@@ -117,4 +117,71 @@
     if (edgeMat) scene.add(new T.LineSegments(new T.EdgesGeometry(g, 20), edgeMat));
   };
 
+  /* ---------- people ---------- */
+  const bodyGeo = new (T.CylinderGeometry)(1.2, 1.5, 4.4, 7).translate(0, 2.2, 0);
+  const headGeo = new T.SphereGeometry(1.15, 10, 8).translate(0, 5.5, 0);
+  const figure = (color, emissive) => {
+    const mat = new T.MeshLambertMaterial({ color, emissive: emissive || 0x000000 });
+    const g = new T.Group();
+    const b = new T.Mesh(bodyGeo, mat), h = new T.Mesh(headGeo, mat);
+    b.castShadow = h.castShadow = true;
+    g.add(b, h); g.scale.setScalar(FIG * 1.35); g.visible = false;
+    scene.add(g); return g;
+  };
+  const instanced = (n, color) => {
+    const mat = new T.MeshLambertMaterial({ color });
+    const a = new T.InstancedMesh(bodyGeo, mat, n), b = new T.InstancedMesh(headGeo, mat, n);
+    a.castShadow = b.castShadow = true;
+    a.count = b.count = 0;
+    scene.add(a, b); return [a, b];
+  };
+
+  const polyLen = pts => pts.slice(1).reduce((s, p, i) => s + Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]), 0);
+  const along = (pts, s) => {   // point + direction at fraction s of a polyline
+    let L = polyLen(pts) * s;
+    for (let i = 1; i < pts.length; i++) {
+      const [ax, ay] = pts[i - 1], [bx, by] = pts[i], seg = Math.hypot(bx - ax, by - ay);
+      if (L <= seg || i === pts.length - 1) {
+        const f = seg ? Math.min(1, L / seg) : 0;
+        return [ax + (bx - ax) * f, ay + (by - ay) * f, (bx - ax) / (seg || 1), (by - ay) / (seg || 1)];
+      }
+      L -= seg;
+    }
+  };
+  const FIG = 1.05;   // figures drawn a little larger than life so they read at map scale
+  const M = new T.Matrix4(), Q = new T.Quaternion(), S1 = new T.Vector3(FIG, FIG, FIG), P = new T.Vector3();
+
+  const setCrowd = key => {
+    agents = [];
+    (FLOWS[key] || []).forEach(f => {
+      const len = polyLen(f.p);
+      for (let i = 0; i < f.n && agents.length < MAX_CROWD; i++)
+        agents.push({ f, len, s: Math.random(), off: (Math.random() - .5) * 16, sp: (f.speed || 1) * (9 + Math.random() * 7), bob: Math.random() * 6 });
+    });
+    crowd.count = crowdHeads.count = agents.length;
+  };
+  const stepCrowd = dt => {
+    agents.forEach((a, i) => {
+      a.s += a.sp * dt / a.len;
+      if (a.s > 1) a.s -= 1;
+      const [x, y, dx, dy] = along(a.f.p, a.s);
+      P.set(x - dy * a.off - CX, Math.abs(Math.sin(clock * 9 + a.bob)) * .5, y + dx * a.off - CZ);
+      M.compose(P, Q, S1);
+      crowd.setMatrixAt(i, M); crowdHeads.setMatrixAt(i, M);
+    });
+    crowd.instanceMatrix.needsUpdate = crowdHeads.instanceMatrix.needsUpdate = true;
+  };
+  const setPolice = key => {
+    let i = 0;
+    (LINES[key] || []).forEach(([[ax, ay], [bx, by], n]) => {
+      for (let j = 0; j < n && i < MAX_POLICE; j++, i++) {
+        const f = n > 1 ? j / (n - 1) : .5;
+        M.compose(P.set(ax + (bx - ax) * f - CX, 0, ay + (by - ay) * f - CZ), Q, S1);
+        police.setMatrixAt(i, M); policeHeads.setMatrixAt(i, M);
+      }
+    });
+    police.count = policeHeads.count = i;
+    police.instanceMatrix.needsUpdate = policeHeads.instanceMatrix.needsUpdate = true;
+  };
+
 })();
