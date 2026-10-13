@@ -495,6 +495,37 @@ a { color: inherit; }
 .bigquote .type .ch.on { opacity: 1; }
 .bigquote cite { color: rgba(255,255,255,.75); }
 
+/* ---------- after ---------- */
+.after__head { width: min(1100px, 100% - 2 * var(--gutter)); margin: 0 auto 70px; text-align: center; }
+.after__head .display { font-size: clamp(40px, 6vw, 92px); max-width: 16ch; margin-inline: auto; }
+.after__src { font: 400 12px/1.5 var(--f-mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.ledger { width: min(820px, 100% - 2 * var(--gutter)); margin: 0 auto 100px; border-top: 2px solid var(--black); }
+.ledger__row {
+  display: grid; grid-template-columns: 150px 1fr auto; align-items: baseline; gap: 20px;
+  padding: 18px 0; border-bottom: 1px dashed rgba(0,0,0,.25);
+}
+.ledger__row b { font: 400 clamp(46px, 5vw, 72px)/1 var(--f-display); }
+.ledger__row span { font-size: 1.05em; }
+.ledger__row small { font: 400 11px/1.4 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: right; }
+.ledger__row--red b { color: var(--red); }
+@media (max-width: 600px) {
+  .ledger__row { grid-template-columns: 96px 1fr; }
+  .ledger__row small { grid-column: 2; text-align: left; }
+}
+.barbed {
+  margin: 20px 0 100px; padding: 110px var(--gutter);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40'%3E%3Cpath d='M0 20 Q30 12 60 20 T120 20' stroke='%23999' stroke-width='2' fill='none'/%3E%3Cpath d='M0 23 Q30 30 60 23 T120 23' stroke='%23777' stroke-width='2' fill='none'/%3E%3Cpath d='M28 10 L36 32 M34 10 L26 32 M88 10 L96 32 M94 10 L86 32' stroke='%23888' stroke-width='2'/%3E%3C/svg%3E") repeat-x 0 30px,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40'%3E%3Cpath d='M0 20 Q30 12 60 20 T120 20' stroke='%23999' stroke-width='2' fill='none'/%3E%3Cpath d='M0 23 Q30 30 60 23 T120 23' stroke='%23777' stroke-width='2' fill='none'/%3E%3Cpath d='M28 10 L36 32 M34 10 L26 32 M88 10 L96 32 M94 10 L86 32' stroke='%23888' stroke-width='2'/%3E%3C/svg%3E") repeat-x 60px calc(100% - 30px),
+    var(--black);
+  text-align: center;
+}
+.barbed blockquote { margin: 0 auto; max-width: 960px; }
+.barbed p { color: var(--paper); font-size: clamp(30px, 3.8vw, 58px); }
+.barbed .type .ch { opacity: .15; }
+.barbed .type .ch.on { opacity: 1; }
+.barbed cite { color: #bdb5a8; }
+
 /* =========================================================
    HERO — THE LIVESTREAM
    ========================================================= */
