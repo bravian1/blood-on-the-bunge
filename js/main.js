@@ -160,6 +160,15 @@
   }, { rootMargin: "0px 0px -12% 0px" });
   $$(".reveal, .vote").forEach(el => io.observe(el));
 
+  /* ---------- footage loops play only while on screen ---------- */
+  const vio = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      const v = e.target;
+      if (e.isIntersecting) { v.preload = "auto"; v.play().catch(() => {}); } else v.pause();
+    });
+  }, { threshold: .25 });
+  $$(".clip video").forEach(v => vio.observe(v));
+
   /* ---------- counters ---------- */
   const countIO = new IntersectionObserver(entries => {
     entries.forEach(e => {
