@@ -102,4 +102,19 @@
     img.src = url;
   });
 
+  /* ---------- buildings ---------- */
+  const shapeOf = (pts, holes = []) => {
+    const s = new T.Shape(pts.map(([x, y]) => new T.Vector2(x - CX, CZ - y)));
+    holes.forEach(h => s.holes.push(new T.Path(h.map(([x, y]) => new T.Vector2(x - CX, CZ - y)))));
+    return s;
+  };
+  const extrude = (shape, h, mat, edgeMat) => {
+    const g = new T.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false });
+    g.rotateX(-Math.PI / 2);
+    const m = new T.Mesh(g, mat);
+    m.castShadow = m.receiveShadow = true;
+    scene.add(m);
+    if (edgeMat) scene.add(new T.LineSegments(new T.EdgesGeometry(g, 20), edgeMat));
+  };
+
 })();
