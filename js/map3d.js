@@ -237,4 +237,29 @@
     });
   };
 
+  /* ---------- camera ---------- */
+  const applyCam = () => {
+    const t = v3(cam.x, cam.y, 0);
+    const sp = Math.sin(cam.phi);
+    camera.position.set(t.x + cam.d * sp * Math.sin(cam.theta), cam.d * Math.cos(cam.phi), t.z + cam.d * sp * Math.cos(cam.theta));
+    camera.lookAt(t);
+  };
+  // A straight-down camera that frames exactly what the 2D SVG shows ("meet" fit).
+  const topDownFor = viewBox => {
+    const [vx, vy, vw, vh] = viewBox.split(/\s+/).map(Number);
+    const aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
+    const tan = Math.tan(T.MathUtils.degToRad(FOV / 2));
+    return { x: vx + vw / 2, y: vy + vh / 2, d: Math.max(vh / 2 / tan, vw / 2 / (tan * aspect)), phi: .001, theta: 0 };
+  };
+  const shortestTheta = to => {
+    let d = to - cam.theta;
+    while (d > Math.PI) d -= 2 * Math.PI;
+    while (d < -Math.PI) d += 2 * Math.PI;
+    return cam.theta + d;
+  };
+  const fly = (to, dur, ease = "power3.inOut", onComplete) => {
+    gsap.killTweensOf(cam);
+    gsap.to(cam, { ...to, theta: shortestTheta(to.theta), duration: dur, ease, onComplete });
+  };
+
 })();
