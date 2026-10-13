@@ -552,6 +552,19 @@ a { color: inherit; }
 .names__more { font-style: italic; color: var(--muted); max-width: 40ch; margin: 0 auto; }
 .haki { font: 700 clamp(60px, 9vw, 130px)/1 var(--f-hand); color: var(--red); margin: 60px 0 0; transform: rotate(-4deg); }
 
+/* ---------- sources ---------- */
+.sources { background: var(--black); color: #cfc7ba; padding: 0 var(--gutter) 60px; }
+.sources__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; max-width: 1180px; margin: 0 auto; }
+.sources h4 { font: 500 12px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: #ff6b6b; margin: 0 0 1.2em; }
+.sources p, .sources li { font-size: 14.5px; line-height: 1.6; }
+.sources ul { padding: 0; margin: 0; list-style: none; }
+.sources li { padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,.12); }
+.sources a { text-decoration: none; }
+.sources a:hover { color: #fff; text-decoration: underline; }
+.sources__end { text-align: center; margin: 70px 0 0; font: 500 12px/1 var(--f-mono); letter-spacing: .4em; text-transform: uppercase; color: #8a8378; }
+@media (max-width: 860px) { .sources__grid { grid-template-columns: 1fr; } }
+
+
 /* =========================================================
    HERO — THE LIVESTREAM
    ========================================================= */
