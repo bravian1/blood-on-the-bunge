@@ -414,6 +414,29 @@
         .to({}, { duration: .9 })
         .addLabel("end");          // lets the snap release you into the page below
 
+      /* ---------- film strips slide in ---------- */
+      $$(".filmquote").forEach(fq => {
+        const right = fq.classList.contains("filmquote--right");
+        gsap.from($(".filmstrip", fq), {
+          xPercent: right ? 80 : -80, rotate: right ? 14 : -14, opacity: 0,
+          duration: motion ? 1.1 : 0, ease: "power3.out",
+          scrollTrigger: { trigger: fq, start: "top 75%" }
+        });
+      });
+
+      /* ---------- type-on quotes, scrubbed to scroll ---------- */
+      $$(".type").forEach(el => {
+        const chars = $$(".ch", el);
+        if (!motion) { chars.forEach(c => c.classList.add("on")); return; }
+        ScrollTrigger.create({
+          trigger: el, start: "top 85%", end: "bottom 45%", scrub: true,
+          onUpdate: self => {
+            const n = Math.round(self.progress * chars.length);
+            chars.forEach((c, i) => c.classList.toggle("on", i < n));
+          }
+        });
+      });
+
     });
 
     // Images and fonts change layout as they arrive; re-measure the triggers when they do.
