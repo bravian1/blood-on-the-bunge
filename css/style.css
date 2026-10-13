@@ -483,6 +483,18 @@ a { color: inherit; }
   .step:not(.step--verdict) { margin-left: max(var(--gutter), calc(50% - 600px)); }
 }
 
+/* ---------- big quote ---------- */
+.bigquote {
+  background: var(--red) var(--noise);
+  padding: clamp(90px, 14vw, 200px) var(--gutter);
+  text-align: center;
+  margin-bottom: 140px;
+}
+.bigquote p { color: var(--paper); max-width: 18ch; margin: 0 auto; font-size: clamp(40px, 6.4vw, 104px); }
+.bigquote .type .ch { opacity: .18; }
+.bigquote .type .ch.on { opacity: 1; }
+.bigquote cite { color: rgba(255,255,255,.75); }
+
 /* =========================================================
    HERO — THE LIVESTREAM
    ========================================================= */
