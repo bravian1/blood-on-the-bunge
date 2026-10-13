@@ -131,6 +131,21 @@ a { color: inherit; }
 .masthead__mark span { color: var(--red); }
 .masthead__date { font: 500 11px/1 var(--f-mono); letter-spacing: .2em; opacity: .7; }
 
+/* ---------- PAPER ---------- */
+.paper {
+  position: relative;
+  background: var(--paper) var(--noise);
+  margin-top: -1px;
+  z-index: 2;
+}
+.torn {
+  position: absolute; left: 0; right: 0; bottom: calc(100% - 2px);
+  width: 100%; height: clamp(60px, 9vw, 140px);
+  display: block;
+}
+.torn__paper { fill: var(--paper); }
+.torn__shadow { fill: rgba(255, 255, 255, .55); transform: translateY(-6px); }
+
 /* =========================================================
    HERO — THE LIVESTREAM
    ========================================================= */
