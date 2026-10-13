@@ -141,6 +141,17 @@
   setInterval(tickClock, 1000);
   if (!reduce) setInterval(pushHeart, 380);
 
+  /* ---------- split quotes into characters for the type-on effect ---------- */
+  $$(".type").forEach(el => {
+    const text = el.textContent;
+    el.setAttribute("aria-label", text);
+    el.innerHTML = text
+      .split(/(\s+)/)
+      .map(w => /^\s+$/.test(w) ? w :
+        `<span style="white-space:nowrap" aria-hidden="true">${[...w].map(c => `<span class="ch">${c}</span>`).join("")}</span>`)
+      .join("");
+  });
+
   /* ---------- counters ---------- */
   const countIO = new IntersectionObserver(entries => {
     entries.forEach(e => {
