@@ -146,6 +146,34 @@ a { color: inherit; }
 .torn__paper { fill: var(--paper); }
 .torn__shadow { fill: rgba(255, 255, 255, .55); transform: translateY(-6px); }
 
+/* ---------- spine layout (RS-style left rule) ---------- */
+.spine {
+  position: relative;
+  width: min(1100px, 100% - 2 * var(--gutter));
+  margin: 0 auto;
+  padding: clamp(60px, 10vw, 140px) 0 80px clamp(0px, 32%, 380px);
+}
+.spine::before {
+  content: ""; position: absolute; top: clamp(60px, 10vw, 140px); bottom: 0;
+  left: calc(clamp(0px, 32%, 380px) - 26px);
+  width: 1px; background: var(--rule);
+}
+.spine__label { position: relative; display: flex; align-items: center; gap: 10px; }
+.dot { position: absolute; left: -31px; width: 11px; height: 11px; border-radius: 50%; background: var(--red); }
+.byline { font: 400 13px/1.6 var(--f-mono); color: var(--muted); max-width: 52ch; }
+.byline em { color: var(--ink); }
+.warning {
+  display: inline-flex; gap: .8em; align-items: baseline; flex-wrap: wrap;
+  font: 400 12px/1.5 var(--f-mono); color: var(--ink);
+  border: 1px dashed var(--rule); padding: .7em 1em; margin-top: 1rem;
+}
+.warning span { color: var(--red); font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+@media (max-width: 760px) {
+  .spine { padding-left: 22px; }
+  .spine::before { left: 0; }
+  .dot { left: -27px; }
+}
+
 /* =========================================================
    HERO — THE LIVESTREAM
    ========================================================= */
