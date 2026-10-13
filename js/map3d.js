@@ -262,4 +262,25 @@
     gsap.to(cam, { ...to, theta: shortestTheta(to.theta), duration: dur, ease, onComplete });
   };
 
+  /* ---------- loop ---------- */
+  const resize = () => {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+  };
+  const frame = now => {
+    raf = 0;
+    if (!active || !visible) return;
+    const dt = Math.min(.05, (now - last) / 1000 || 0); last = now; clock += dt;
+    stepCrowd(dt);
+    if (fire.visible) { fireLight.intensity = 1.6 + Math.sin(clock * 23) * .5 + Math.random() * .4; fire.children[0].scale.y = 1 + Math.sin(clock * 17) * .2; }
+    if (state === "eve" && !gsap.isTweening(cam)) cam.theta += dt * .06;
+    applyCam();
+    renderer.render(scene, camera);
+    placeLabels();
+    raf = requestAnimationFrame(frame);
+  };
+  const kick = () => { if (!raf && active && visible) { last = performance.now(); raf = requestAnimationFrame(frame); } };
+
 })();
