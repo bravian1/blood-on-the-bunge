@@ -510,6 +510,49 @@
       };
       ScrollTrigger.create({ trigger: ".timeline__list", start: "top bottom", end: "bottom top", onUpdate: pickTime, onRefresh: pickTime });
 
+      /* ---------- forensic: steps + scrubber ---------- */
+      const frame = $(".forensic__frame"), hudSec = $(".hud__sec");
+      const secsHud = ["00", "02", "03", "05", "09", "11", "15"];
+      const steps = $$(".step");
+      const pickStep = () => {
+        const mid = innerHeight / 2;
+        let best = steps[0], bestD = Infinity;
+        for (const s of steps) {
+          const r = s.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - mid);
+          if (d < bestD) { bestD = d; best = s; }
+        }
+        const n = best.dataset.step;
+        if (frame.dataset.state === n) return;
+        frame.dataset.state = n;
+        hudSec.textContent = secsHud[n] || "00";
+        if (n === "3") {
+          $$(".checklist--dark li", best).forEach((li, i) =>
+            setTimeout(() => li.classList.add("on"), motion ? 250 + i * 260 : 0));
+        }
+      };
+      ScrollTrigger.create({ trigger: ".forensic", start: "top bottom", end: "bottom top", onUpdate: pickStep, onRefresh: pickStep });
+      // Each of the first three steps owns a stretch of frames: crowd fleeing, the shooter circled, the 3D model.
+      const KEYS = [[0, 0], [0, 40], [0, 84], [0, 150], [1, SCRUB_N - 1]]; // [progress, frame]; middle three filled on refresh
+      const mapFrame = p => {
+        for (let k = 1; k < KEYS.length; k++) {
+          const [p0, f0] = KEYS[k - 1], [p1, f1] = KEYS[k];
+          if (p <= p1) return f0 + (f1 - f0) * Math.max(0, (p - p0) / ((p1 - p0) || 1));
+        }
+        return SCRUB_N - 1;
+      };
+      ScrollTrigger.create({
+        trigger: steps[0], start: "top 80%", endTrigger: steps[2], end: "bottom 30%",
+        onRefresh: s => {
+          [0, 1, 2].forEach(i => {
+            const r = steps[i].getBoundingClientRect();
+            const at = r.top + scrollY + r.height / 2 - innerHeight / 2;
+            KEYS[i + 1][0] = Math.min(1, Math.max(0, (at - s.start) / (s.end - s.start)));
+          });
+          setScrub(mapFrame(s.progress) / SCRUB_N);
+        },
+        onUpdate: s => setScrub(mapFrame(s.progress) / SCRUB_N)
+      });
+
     });
 
     // Images and fonts change layout as they arrive; re-measure the triggers when they do.
