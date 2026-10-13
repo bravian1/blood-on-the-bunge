@@ -187,6 +187,85 @@
   }, { threshold: .6 });
   $$("[data-count]").forEach(el => countIO.observe(el));
 
+  /* ---------- flowers on the wire: shared by every visitor via /api/flowers ---------- */
+  // Falls back to this browser only (localStorage) when the API can't be reached, e.g. opened from file://.
+  const wire = $(".wire"), bed = $(".wire__flowers"), note = $(".flower-note"), countEl = $(".flower-count");
+  const FLOWERS = ["🌹", "🌼", "🌸", "💐", "🌺", "🥀"];
+  const LOCAL = "june25-flowers", MINE = "june25-flowers-mine", ON_WIRE = 150;
+  const seen = new Set();
+  let shared = null, total = 0, mine = 0, local = [];
+  try { mine = +localStorage.getItem(MINE) || 0; local = JSON.parse(localStorage.getItem(LOCAL) || "[]"); } catch (e) {}
+
+  const hang = (fl, animate) => {
+    const s = document.createElement("span");
+    s.className = "flower"; s.textContent = FLOWERS[fl.f] || FLOWERS[0];
+    s.style.left = fl.x + "%"; s.style.setProperty("--r", fl.r + "deg");
+    if (!animate) s.style.animation = "none";
+    bed.append(s);
+    while (bed.children.length > ON_WIRE) bed.firstChild.remove();
+    return s;
+  };
+  const showCount = () => {
+    if (!shared) { countEl.textContent = ""; return; }
+    countEl.textContent = total ? `${fmt(total)} flower${total === 1 ? "" : "s"} hung by visitors so far` : "No flowers yet. Be the first.";
+  };
+  const api = opts => fetch("api/flowers", { cache: "no-store", ...opts })
+    .then(r => r.json().then(body => ({ status: r.status, body })));
+
+  const pull = async animate => {
+    try {
+      const { status, body } = await api();
+      if (status !== 200) throw new Error(status);
+      shared = true; total = body.total;
+      body.flowers.slice().reverse().forEach(fl => {
+        if (seen.has(fl.id)) return;
+        seen.add(fl.id); hang(fl, animate);
+      });
+    } catch (e) {
+      if (shared === null) { shared = false; local.forEach(fl => hang(fl, false)); }
+    }
+    showCount();
+  };
+
+  const thank = () => {
+    note.textContent = mine === 1
+      ? "You hung a flower. Families did the same outside parliament on 25 June 2026, when barbed wire kept them from the building."
+      : shared ? `You’ve hung ${mine} flowers. Everyone who visits this page sees them.`
+               : `You’ve hung ${mine} flowers. They stay on this device.`;
+  };
+  const add = async x => {
+    const fl = { x: Math.round(Math.max(2, Math.min(98, x)) * 10) / 10, f: Math.floor(Math.random() * FLOWERS.length), r: Math.round((Math.random() - .5) * 46) };
+    const el = hang(fl, true);   // show it straight away; the server confirms
+    if (shared) {
+      try {
+        const { status, body } = await api({ method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(fl) });
+        if (status === 429) { el.remove(); note.textContent = body.error; return; }
+        if (status !== 201) throw new Error(status);
+        seen.add(body.flower.id); total = Math.max(total, body.total); showCount();
+      } catch (e) { /* keep it on screen; it just won't reach others this time */ }
+    } else {
+      local.push(fl);
+      try { localStorage.setItem(LOCAL, JSON.stringify(local.slice(-120))); } catch (e) {}
+    }
+    mine++;
+    try { localStorage.setItem(MINE, mine); } catch (e) {}
+    thank();
+  };
+  $(".flower-btn").addEventListener("click", () => add(8 + Math.random() * 84));
+  wire.addEventListener("click", e => {
+    const r = wire.getBoundingClientRect();
+    add((e.clientX - r.left) / r.width * 100);
+  });
+  // Load the wire as it approaches; while it's on screen, check for new flowers every 15 s.
+  let poll = 0;
+  new IntersectionObserver(es => {
+    const near = es.some(e => e.isIntersecting);
+    clearInterval(poll);
+    if (!near) return;
+    pull(shared !== null);
+    if (shared !== false) poll = setInterval(() => !document.hidden && pull(true), 15000);
+  }, { rootMargin: "60% 0px" }).observe($(".barbed"));
+
   /* =========================================================
      FRAME SCRUBBER (Eric Shieni) — lazy-loads its frames
      ========================================================= */

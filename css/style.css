@@ -759,6 +759,29 @@ a { color: inherit; }
 .scrub__tc { color: #fff; font-variant-numeric: tabular-nums; min-width: 6ch; text-align: right; }
 .step__hint { font: 400 11.5px/1.5 var(--f-mono); color: #ff8a8a; letter-spacing: .04em; }
 
+/* =========================================================
+   FLOWERS ON THE WIRE
+   ========================================================= */
+.barbed { position: relative; }
+.wire { position: relative; height: 70px; margin: 56px auto 0; max-width: 1100px; cursor: pointer;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='40'%3E%3Cpath d='M0 20 Q30 12 60 20 T120 20' stroke='%23aaa' stroke-width='2' fill='none'/%3E%3Cpath d='M0 23 Q30 30 60 23 T120 23' stroke='%23888' stroke-width='2' fill='none'/%3E%3Cpath d='M28 10 L36 32 M34 10 L26 32 M88 10 L96 32 M94 10 L86 32' stroke='%23999' stroke-width='2'/%3E%3C/svg%3E") repeat-x 0 50%;
+}
+.wire__flowers { position: absolute; inset: 0; }
+.flower { position: absolute; top: 50%; font-size: 26px; line-height: 1; transform: translate(-50%, -50%) rotate(var(--r, 0deg)); animation: hang .9s cubic-bezier(.3,1.6,.5,1) both; filter: drop-shadow(0 3px 4px rgba(0,0,0,.5)); }
+@keyframes hang { from { transform: translate(-50%, -260%) rotate(-30deg); opacity: 0; } }
+.flower-ui { margin-top: 26px; display: grid; justify-items: center; gap: 12px; }
+.flower-btn {
+  font: 500 12px/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--black); background: var(--paper); border: 0; border-radius: 40px; padding: 14px 22px; cursor: pointer;
+  transition: transform .2s, background .2s;
+}
+.flower-btn:hover { background: #fff; transform: translateY(-2px); }
+.flower-btn:focus-visible { outline: 2px solid #ff6b6b; outline-offset: 3px; }
+.flower-btn__icon { color: var(--red); font-size: 15px; }
+.barbed .flower-count { margin: 0; font: 400 clamp(22px, 2.4vw, 32px)/1.1 var(--f-display); text-transform: uppercase; color: var(--paper); letter-spacing: .02em; }
+.barbed .flower-count:empty { display: none; }
+.barbed .flower-note { margin: 0; text-transform: none; color: #a99e92; font: 400 11.5px/1.5 var(--f-mono); color: #a99e92; max-width: 52ch; }
+
 /* ---------- reveal ---------- */
 .reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s var(--ease), transform 1s var(--ease); }
 .reveal.is-in { opacity: 1; transform: none; }
