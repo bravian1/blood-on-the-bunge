@@ -399,3 +399,7 @@ a { color: inherit; }
 
 /* the torn edge on dark */
 .live + .paper .torn__shadow { fill: rgba(255, 60, 60, .35); }
+
+/* ---------- reveal ---------- */
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s var(--ease), transform 1s var(--ease); }
+.reveal.is-in { opacity: 1; transform: none; }

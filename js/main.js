@@ -152,6 +152,14 @@
       .join("");
   });
 
+  /* ---------- reveal on view ---------- */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); }
+    });
+  }, { rootMargin: "0px 0px -12% 0px" });
+  $$(".reveal, .vote").forEach(el => io.observe(el));
+
   /* ---------- counters ---------- */
   const countIO = new IntersectionObserver(entries => {
     entries.forEach(e => {
