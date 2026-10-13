@@ -187,6 +187,17 @@
   }, { threshold: .6 });
   $$("[data-count]").forEach(el => countIO.observe(el));
 
+  /* ---------- in-page links scroll smoothly (kept out of CSS: it breaks trigger measuring) ---------- */
+  document.addEventListener("click", e => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const el = document.getElementById(a.getAttribute("href").slice(1));
+    if (!el) return;
+    e.preventDefault();
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+    history.replaceState(null, "", a.getAttribute("href"));
+  });
+
   /* ---------- YouTube chapters ---------- */
   const yt = $("#yt");
   $$(".chapters button").forEach(b => b.addEventListener("click", () => {
