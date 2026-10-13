@@ -187,6 +187,14 @@
   }, { threshold: .6 });
   $$("[data-count]").forEach(el => countIO.observe(el));
 
+  /* ---------- YouTube chapters ---------- */
+  const yt = $("#yt");
+  $$(".chapters button").forEach(b => b.addEventListener("click", () => {
+    $$(".chapters button").forEach(x => x.classList.remove("is-on"));
+    b.classList.add("is-on");
+    yt.src = `https://www.youtube-nocookie.com/embed/qz0f1yyf_eA?rel=0&autoplay=1&start=${b.dataset.t}`;
+  }));
+
   /* ---------- flowers on the wire: shared by every visitor via /api/flowers ---------- */
   // Falls back to this browser only (localStorage) when the API can't be reached, e.g. opened from file://.
   const wire = $(".wire"), bed = $(".wire__flowers"), note = $(".flower-note"), countEl = $(".flower-count");
