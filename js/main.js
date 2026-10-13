@@ -285,6 +285,36 @@
     if (shared !== false) poll = setInterval(() => !document.hidden && pull(true), 15000);
   }, { rootMargin: "60% 0px" }).observe($(".barbed"));
 
+  /* ---------- masthead + rail ---------- */
+  const mast = $(".masthead"), paper = $(".paper"), rail = $(".rail");
+  const railLinks = $$(".rail a");
+  const darkSecs = $$(".forensic, .bigquote, .barbed, .sources");
+  const secs = railLinks.map(a => document.getElementById(a.dataset.sec === "top" ? "top" : a.dataset.sec));
+  let lastY = scrollY;
+  const onScroll = () => {
+    const y = scrollY;
+    const onPaper = paper.getBoundingClientRect().top < 60;
+    mast.classList.toggle("is-paper", onPaper);
+    mast.classList.toggle("is-hidden", onPaper && y > lastY && y > 400);
+    lastY = y;
+    // dark sections flip the rail colour
+    const dark = darkSecs.some(s => {
+      const r = s.getBoundingClientRect(); return r.top < innerHeight / 2 && r.bottom > innerHeight / 2;
+    });
+    rail.classList.toggle("on-paper", onPaper && !dark);
+    let cur = 0;
+    secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top < innerHeight * .45) cur = i; });
+    railLinks.forEach((a, i) => a.classList.toggle("is-on", i === cur));
+  };
+  // At most one layout read per frame, however fast scroll events arrive.
+  let scrollQueued = false;
+  addEventListener("scroll", () => {
+    if (scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(() => { scrollQueued = false; onScroll(); });
+  }, { passive: true });
+  onScroll();
+
   /* =========================================================
      FRAME SCRUBBER (Eric Shieni) — lazy-loads its frames
      ========================================================= */
