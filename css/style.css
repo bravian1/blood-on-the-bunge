@@ -37,3 +37,57 @@ img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; }
 ::selection { background: var(--red); color: #fff; }
 .is-loading { overflow: hidden; }
+
+/* ---------- shared bits ---------- */
+.kicker {
+  font: 500 12px/1 var(--f-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+.display {
+  font: 400 clamp(56px, 9vw, 132px)/.9 var(--f-display);
+  text-transform: uppercase;
+  letter-spacing: -.005em;
+  margin: .2em 0 .35em;
+  color: var(--black);
+}
+.display--md { font-size: clamp(44px, 6.4vw, 96px); }
+.display--red { color: var(--red); }
+.lede {
+  font: italic 400 clamp(20px, 1.6vw + 10px, 27px)/1.45 var(--f-serif);
+  margin: 0 0 1.2em;
+}
+.lede--sm { font-size: clamp(17px, 1vw + 11px, 21px); color: var(--muted); max-width: 40ch; }
+.prose p { margin: 0 0 1.1em; }
+.prose q { font-style: italic; }
+.prose q::before, .prose q::after { content: ""; }
+.prose--center { width: var(--col); margin: 0 auto 4rem; }
+.subhead {
+  font: 400 clamp(28px, 2.6vw, 40px)/1 var(--f-display);
+  text-transform: uppercase;
+  margin: 2.6em 0 .6em;
+}
+.dropcap::first-letter {
+  float: left;
+  font: 400 5.2em/.82 var(--f-display);
+  color: var(--red);
+  padding: .06em .1em 0 0;
+}
+.pull {
+  font: 400 clamp(26px, 2.4vw, 36px)/1.05 var(--f-display);
+  text-transform: uppercase;
+  color: var(--red);
+  border-left: 3px solid var(--red);
+  padding-left: .6em;
+  margin-top: 1.6em;
+}
+.pull span { display: block; margin-top: .8em; font: 400 12px/1.5 var(--f-mono); letter-spacing: .08em; color: var(--muted); text-transform: none; }
+.pull--center { border: 0; padding: 0; text-align: center; margin: 2.4em 0; }
+
+.flagbar { display: flex; height: 6px; width: 140px; }
+.flagbar b { flex: 1; }
+.flagbar b:nth-child(1) { background: var(--black); }
+.flagbar b:nth-child(2) { background: var(--red); box-shadow: 0 -1.5px 0 #fff inset, 0 1.5px 0 #fff inset; }
+.flagbar b:nth-child(3) { background: var(--green); }
+.flagbar--wide { width: 100%; height: 8px; margin-bottom: 3rem; }
