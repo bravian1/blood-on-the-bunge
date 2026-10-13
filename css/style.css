@@ -212,6 +212,44 @@ a { color: inherit; }
   .two-col--flip .two-col__media { order: 0; }
 }
 
+/* ---------- film-strip quote ---------- */
+.filmquote {
+  position: relative;
+  overflow-x: clip;
+  width: min(1100px, 100% - 2 * var(--gutter));
+  margin: 0 auto 160px;
+  padding: 80px 0;
+}
+.filmstrip {
+  position: absolute; top: 50%; left: -2%;
+  width: min(460px, 52%); height: 210px;
+  transform: translateY(-50%) rotate(-5deg);
+  background: var(--red);
+  border-radius: 8px;
+  z-index: 0;
+}
+.filmstrip::before, .filmstrip::after {
+  content: ""; position: absolute; left: 14px; right: 14px; height: 13px;
+  background: repeating-linear-gradient(90deg, var(--paper) 0 11px, transparent 11px 22px);
+  border-radius: 2px;
+}
+.filmstrip::before { top: 12px; }
+.filmstrip::after { bottom: 12px; }
+.filmquote--right .filmstrip { left: auto; right: -2%; transform: translateY(-50%) rotate(4deg); }
+.filmquote blockquote { position: relative; z-index: 1; margin: 0 auto; max-width: 900px; text-align: center; }
+.filmquote p, .bigquote p, .barbed p {
+  font: 400 clamp(34px, 4.6vw, 72px)/1 var(--f-display);
+  text-transform: uppercase;
+  color: var(--black);
+  margin: 0;
+}
+.filmquote cite, .bigquote cite, .barbed cite {
+  display: block; margin-top: 1.4em;
+  font: normal 400 11.5px/1.5 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+}
+.type .ch { opacity: .08; transition: opacity .15s; }
+.type .ch.on { opacity: 1; }
+
 /* =========================================================
    HERO — THE LIVESTREAM
    ========================================================= */
