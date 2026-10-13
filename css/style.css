@@ -91,3 +91,22 @@ a { color: inherit; }
 .flagbar b:nth-child(2) { background: var(--red); box-shadow: 0 -1.5px 0 #fff inset, 0 1.5px 0 #fff inset; }
 .flagbar b:nth-child(3) { background: var(--green); }
 .flagbar--wide { width: 100%; height: 8px; margin-bottom: 3rem; }
+
+/* ---------- photos & captions ---------- */
+.photo { margin: 0; }
+.photo img { width: 100%; border-radius: 3px; filter: saturate(.92) contrast(1.03); }
+.photo figcaption, .forensic figcaption {
+  display: flex; flex-wrap: wrap; gap: .35em 1em; justify-content: space-between;
+  margin-top: .7em;
+  font: 400 11.5px/1.5 var(--f-mono);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.photo figcaption span::before { content: "▪ "; color: var(--red); }
+.tc {
+  color: var(--red); text-decoration: none; white-space: nowrap;
+  border-bottom: 1px dotted currentColor;
+}
+.tc:hover { color: var(--black); }
+.photo--inset { margin: 2rem 0 0; max-width: 340px; }
