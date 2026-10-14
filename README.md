@@ -108,7 +108,6 @@ Visitors are limited to one flower every 2 seconds and 20 an hour (`429` beyond 
 - [Two years on, Kenyan families still seek justice](https://www.aljazeera.com/news/2026/6/25/two-years-on-kenyan-families-still-seek-justice-after-gen-z-protests), Al Jazeera, 25 Jun 2026
 - [Families lay flowers on barbed wire on anniversary of deadly Kenya protests](https://www.bbc.com/news/articles/cgqjl8kj8wpo), BBC, 25 Jun 2026
 
-Design was inspired by Rolling Stone's [*The DJ and the War Crimes*](https://investigation.rollingstone.com/dj-photo-war-crimes-bosnia/).
 
 ## Credits and licence
 
