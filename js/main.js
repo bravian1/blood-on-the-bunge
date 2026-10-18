@@ -206,7 +206,10 @@
     yt.src = `https://www.youtube-nocookie.com/embed/qz0f1yyf_eA?rel=0&autoplay=1&start=${b.dataset.t}`;
   }));
 
-  /* ---------- flowers on the wire: shared by every visitor via /api/flowers ---------- */
+  /* ---------- flowers on the wire ---------- */
+  // Flowers stay in each visitor's browser. Set SHARED_FLOWERS to true (and connect Upstash Redis
+  // for api/flowers.js, see README) to share them with every visitor via /api/flowers.
+  const SHARED_FLOWERS = false;
   // Falls back to this browser only (localStorage) when the API can't be reached, e.g. opened from file://.
   const wire = $(".wire"), bed = $(".wire__flowers"), note = $(".flower-note"), countEl = $(".flower-count");
   const FLOWERS = ["🌹", "🌼", "🌸", "💐", "🌺", "🥀"];
@@ -233,6 +236,7 @@
 
   const pull = async animate => {
     try {
+      if (!SHARED_FLOWERS) throw new Error("sharing off");
       const { status, body } = await api();
       if (status !== 200) throw new Error(status);
       shared = true; total = body.total;
