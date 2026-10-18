@@ -2,6 +2,8 @@
 
 **An interactive memorial and investigation of 25 June 2024, the day Kenyan security forces shot protesters dead at parliament.**
 
+**▶ Live: [june-25th.vercel.app](https://june-25th.vercel.app)**
+
 On 25 June 2024, more than 100,000 Kenyans marched on parliament to stop the Finance Bill. Three unarmed men, **David Chege**, **Ericsson Mutisya** and **Eric Shieni**, were shot dead on and beside its grounds. Their deaths were filmed from every angle. In 2025, BBC Africa Eye's investigation [*Blood Parliament*](https://www.youtube.com/watch?v=qz0f1yyf_eA) used more than 5,000 photos and videos to identify the police officer and the soldier who fired. Two years on, no one has been charged.
 
 This site retells that investigation as a scroll-driven story: the day as it was livestreamed, minute by minute on a map of Parliament Road, then frame by frame through the evidence. It ends with what has happened since.
@@ -83,7 +85,7 @@ cloudflared tunnel --url http://127.0.0.1:8765
 
 ## Deploy to Vercel
 
-Import the repository as a Vercel project, or run `vercel deploy --prod` from the folder. `vercel.json` declares it a static site with no build step and sets long cache lifetimes for footage and libraries. `.vercelignore` keeps `dev/`, `docs/` and `api/` out of the deployment, so no database is needed.
+The live site is the Vercel project **june-25th**, connected to this repository: every push to `main` deploys to production. To deploy your own copy, import the repository as a Vercel project, or run `vercel deploy --prod` from the folder. `vercel.json` declares it a static site with no build step and sets long cache lifetimes for footage and libraries. `.vercelignore` keeps `dev/`, `docs/` and `api/` out of the deployment, so no database is needed.
 
 ### Shared flowers (optional)
 
