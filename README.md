@@ -29,7 +29,7 @@ In the Eric Shieni chapter, scrolling steps frame by frame through the footage a
 <p align="center"><img src="docs/scrubber.jpg" width="70%" alt="Frame scrubber: the shooter circled in red on the parliament lawn, with a timeline bar and timecode below"></p>
 
 ### 4. After
-What followed: the bill's withdrawal, the government's response to the film, the 2025 and 2026 anniversaries, and the state of accountability (of 62 deaths in the 2024 protests, three cases have reached a courtroom). It ends with Ericsson Mutisya's mother's words between barbed wire. Visitors can **hang a flower on the wire**, as families did outside parliament in June 2026. The flowers are shared: everyone sees everyone's.
+What followed: the bill's withdrawal, the government's response to the film, the 2025 and 2026 anniversaries, and the state of accountability (of 62 deaths in the 2024 protests, three cases have reached a courtroom). It ends with Ericsson Mutisya's mother's words between barbed wire. Visitors can **hang a flower on the wire**, as families did outside parliament in June 2026. Flowers stay on the visitor's device; sharing them with every visitor is built in but switched off (see [Shared flowers](#shared-flowers-optional)).
 
 ## Accuracy
 
@@ -46,11 +46,11 @@ Plain HTML, CSS and JavaScript, with no build step.
 - **[three.js](https://threejs.org)** r149 for the 3D map, lazy-loaded as the reader approaches the timeline
 - **OpenStreetMap** data, exported to SVG (2D) and to footprints and heights (3D)
 - **Canvas** frame sequences for the scrubber (198 WebP frames, lazy-loaded)
-- A small **serverless API** for the shared flowers (Vercel + Upstash Redis), mirrored by a Python dev server
+- An optional **serverless API** for sharing flowers between visitors (Vercel + Upstash Redis), mirrored by a Python dev server
 
 Footage was cut with `yt-dlp` and `ffmpeg`, and the film was transcribed with `faster-whisper` to source quotes accurately.
 
-Accessibility and performance: honours `prefers-reduced-motion`; footage loops play only while on screen; heavy effects are dropped on phones; works without WebGL (the map stays 2D) and without the API (flowers stay local).
+Accessibility and performance: honours `prefers-reduced-motion`; footage loops play only while on screen; heavy effects are dropped on phones; works without WebGL (the map stays 2D) and without the API (flowers stay on the device).
 
 ## Project structure
 
@@ -64,7 +64,7 @@ assets/img/           portraits and evidence stills
 assets/video/         livestream clip and footage loops (+ posters)
 assets/scrub/         frame sequence for the scrubber
 assets/map3d-data.js  building footprints and heights from OpenStreetMap
-api/flowers.js        Vercel function: shared flowers (Upstash Redis)
+api/flowers.js        optional Vercel function for shared flowers (Upstash Redis)
 dev/server.py         local server: static files + the same /api/flowers on a JSON file
 docs/                 README screenshots
 ```
@@ -83,11 +83,18 @@ cloudflared tunnel --url http://127.0.0.1:8765
 
 ## Deploy to Vercel
 
-1. Import the repository as a Vercel project. Framework preset **Other**, no build command, output directory = repository root.
-2. Under **Storage**, add **Upstash → Redis** (the free tier is plenty) and connect it to the project. This sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
-3. Redeploy. `api/flowers.js` becomes the live `/api/flowers`. `dev/` and `docs/` are excluded by `.vercelignore`.
+Import the repository as a Vercel project, or run `vercel deploy --prod` from the folder. `vercel.json` declares it a static site with no build step and sets long cache lifetimes for footage and libraries. `.vercelignore` keeps `dev/`, `docs/` and `api/` out of the deployment, so no database is needed.
 
-### Flower API
+### Shared flowers (optional)
+
+By default each visitor's flowers are kept in their own browser (`localStorage`). To share them so everyone sees everyone's:
+
+1. In `js/main.js`, set `SHARED_FLOWERS = true`.
+2. Remove `api/` from `.vercelignore`.
+3. In the Vercel project, under **Storage**, add **Upstash → Redis** (the free tier is plenty) and connect it. This sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
+4. Redeploy. `api/flowers.js` becomes the live `/api/flowers`.
+
+#### Flower API
 
 | Request | Response |
 | --- | --- |
