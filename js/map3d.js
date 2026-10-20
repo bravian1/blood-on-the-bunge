@@ -16,7 +16,7 @@
     "1400": [{ p: [[905, 15], [470, 222]], n: 80 }, { p: [[318, 25], [400, 200]], n: 55 }, { p: [[120, 345], [372, 250]], n: 55 }],
     "1414": [{ p: [[905, 15], [470, 222]], n: 80 }, { p: [[318, 25], [400, 200]], n: 55 }, { p: [[120, 345], [372, 250]], n: 55 }],
     "1420": [{ p: [[420, 236], [496, 390]], n: 90 }, { p: [[760, 80], [440, 228]], n: 60 }, { p: [[340, 90], [410, 225]], n: 40 }],
-    "142x": [{ p: [[455, 330], [430, 262], [418, 236]], n: 90, speed: 2.4 }, { p: [[470, 350], [440, 285]], n: 30, speed: 2.4 }],
+    "142x": [{ p: [[446, 308], [430, 262], [418, 236]], n: 90, speed: 2.4 }, { p: [[490, 340], [470, 282]], n: 30, speed: 2.4 }],
     "1457": [{ p: [[512, 412], [452, 470]], n: 60 }, { p: [[538, 462], [478, 512]], n: 60 }, { p: [[488, 368], [432, 425]], n: 50 }, { p: [[440, 250], [500, 380]], n: 60 }],
     "1504": [{ p: [[452, 470], [520, 432], [560, 400]], n: 80, speed: 2.6 }, { p: [[478, 505], [545, 462], [590, 440]], n: 60, speed: 2.6 }],
     "eve": []
@@ -32,6 +32,9 @@
   };
   const SHOOTER = { "142x": { at: [497, 410], kneel: true }, "1504": { at: [468, 424] } };
   const ERIC = { "1504": [505, 440] };
+  // Who is hit, and from where: they go down a moment after the camera settles, falling away from the gun.
+  // The third value turns the fall (radians) so a body doesn't drop straight away from the camera and read as standing.
+  const HIT = { "142x": { from: [497, 410], at: [[452, 322, -.9], [462, 334, -1.3]] }, "1504": { from: [468, 424], at: [[505, 440]] } };
   const RINGS = { "142x": [[452, 322], [462, 334]], "1504": [[507, 439]], "eve": [[452, 322], [462, 334], [507, 439]] };
   const FIRE = new Set(["1420", "142x"]);
   const RANGE = { "142x": [[456, 330], [494, 404], "≈ 50 m"], "1504": [[505, 440], [470, 425], "≈ 25 m"] };
@@ -41,12 +44,12 @@
     "1400": [["Last line of defence", 440, 275, 10, "police"]],
     "1414": [["195–106: the bill passes", 428, 540, 34]],
     "1420": [["Police truck set alight", 452, 316, 18], ["Protesters reach Parliament Road", 470, 350, 8, "crowd"]],
-    "142x": [["David Chege", 452, 322, 10, "red"], ["Ericsson Mutisya", 462, 334, 4, "red"], ["Police officer kneels, fires", 497, 410, 12, "red"]],
+    "142x": [["David Chege", 452, 322, 10, "red"], ["Ericsson Mutisya", 462, 334, 0, "red", true], ["Police officer kneels, fires", 497, 410, 12, "red"]],
     "1457": [["Fences torn down; crowd crosses the lawns", 500, 430, 8, "crowd"]],
     "1504": [["Eric Shieni, at the exit", 505, 440, 20, "yellow"], ["Soldier fires", 468, 424, 12, "red"]],
     "eve": [["David Chege", 452, 322, 70, "red"], ["Ericsson Mutisya", 462, 334, 54, "red"], ["Eric Shieni", 507, 439, 70, "red"]]
   };
-  // Camera per moment: target (map coords), distance, tilt from vertical, compass angle.
+  // Camera per moment: target (map coords, optional height h), distance, tilt from vertical, compass angle.
   const CAMS = {
     "0930": { x: 470, y: 420, d: 700, phi: .78, theta: .35 },
     "1300": { x: 520, y: 260, d: 880, phi: .82, theta: .35 },
@@ -56,13 +59,13 @@
     "142x": { x: 476, y: 368, d: 270, phi: .98, theta: 1.05 },
     "1457": { x: 480, y: 450, d: 360, phi: .82, theta: 1.25 },
     "1504": { x: 482, y: 448, d: 240, phi: .88, theta: 2.45 },
-    "eve":  { x: 480, y: 385, d: 420, phi: .9, theta: 1.95 }
+    "eve":  { x: 478, y: 382, h: 55, d: 340, phi: .74, theta: 1.95 }
   };
 
   let renderer, scene, camera, stage, canvas, labelsEl, svgEl;
   let active = false, visible = true, state = null, raf = 0, last = 0, clock = 0;
-  const cam = { x: CX, y: CZ, d: 600, phi: .001, theta: 0 };
-  let crowd, crowdHeads, police, policeHeads, shooter, eric, fire, fireLight, ringsGroup, rangeLine, labels = [];
+  const cam = { x: CX, y: CZ, h: 0, d: 600, phi: .001, theta: 0 };
+  let crowd, crowdHeads, police, policeHeads, shooter, eric, victims = [], fire, fireLight, ringsGroup, rangeLine, labels = [];
   let agents = [];
   const MAX_CROWD = 260, MAX_POLICE = 24;
 
@@ -184,6 +187,18 @@
     police.instanceMatrix.needsUpdate = policeHeads.instanceMatrix.needsUpdate = true;
   };
 
+  // Tip a figure over at its feet, away from the shooter. Rotation order YXZ: tip forward, then turn to face the fall.
+  const fall = (g, from, at, delay, instant) => {
+    g.userData.tw?.kill();
+    g.position.copy(v3(at[0], at[1]));
+    g.rotation.set(0, Math.atan2(at[0] - from[0], at[1] - from[1]) + (at[2] || 0), 0, "YXZ");
+    const s = g.scale.x, p = { t: instant ? 1 : 0 };
+    const put = () => { g.rotation.x = p.t * Math.PI / 2; g.position.y = Math.sin(p.t * Math.PI / 2) * 1.3 * s; };
+    put();
+    if (!instant) g.userData.tw = gsap.to(p, { t: 1, delay, duration: .55, ease: "power2.in", onUpdate: put });
+  };
+  const stand = g => { g.userData.tw?.kill(); g.rotation.set(0, 0, 0); g.position.y = 0; };
+
   /* ---------- markers ---------- */
   const ringMat = new T.MeshBasicMaterial({ color: 0xc8102e, transparent: true, opacity: .9, side: T.DoubleSide });
   const pillarMat = new T.MeshBasicMaterial({ color: 0xc8102e, transparent: true, opacity: .42, depthWrite: false });
@@ -212,18 +227,18 @@
   /* ---------- HTML labels projected from 3D ---------- */
   const setLabels = key => {
     labelsEl.textContent = "";
-    labels = (LABELS[key] || []).map(([text, x, y, h, cls]) => {
+    labels = (LABELS[key] || []).map(([text, x, y, h, cls, below]) => {   // below: hang under the point, clear of what's behind it
       const el = document.createElement("span");
-      el.className = "m3-lbl" + (cls ? " m3-lbl--" + cls : "");
+      el.className = "m3-lbl" + (cls ? " m3-lbl--" + cls : "") + (below ? " m3-lbl--below" : "");
       el.textContent = text;
       labelsEl.append(el);
-      return { el, pos: v3(x, y, h || 8) };
+      return { el, below, pos: v3(x, y, h ?? 8) };
     });
     const r = RANGE[key];
     if (r) {
       const el = document.createElement("span");
       el.className = "m3-lbl m3-lbl--dist"; el.textContent = r[2]; labelsEl.append(el);
-      labels.push({ el, pos: v3((r[0][0] + r[1][0]) / 2, (r[0][1] + r[1][1]) / 2, 9) });
+      labels.push({ el, pos: v3(r[0][0] * .4 + r[1][0] * .6, r[0][1] * .4 + r[1][1] * .6, 9) });   // a little toward the gun, clear of the victims' labels
     }
   };
   const V = new T.Vector3();
@@ -233,13 +248,13 @@
       V.copy(l.pos).project(camera);
       const off = V.z > 1 || Math.abs(V.x) > 1.05 || Math.abs(V.y) > 1.05;
       l.el.style.opacity = off ? 0 : 1;
-      l.el.style.transform = `translate(${(V.x * .5 + .5) * w}px, ${(-V.y * .5 + .5) * h}px) translate(-50%, -100%)`;
+      l.el.style.transform = `translate(${(V.x * .5 + .5) * w}px, ${(-V.y * .5 + .5) * h}px) translate(-50%, ${l.below ? 0 : -100}%)`;
     });
   };
 
   /* ---------- camera ---------- */
   const applyCam = () => {
-    const t = v3(cam.x, cam.y, 0);
+    const t = v3(cam.x, cam.y, cam.h);
     const sp = Math.sin(cam.phi);
     camera.position.set(t.x + cam.d * sp * Math.sin(cam.theta), cam.d * Math.cos(cam.phi), t.z + cam.d * sp * Math.cos(cam.theta));
     camera.lookAt(t);
@@ -249,7 +264,7 @@
     const [vx, vy, vw, vh] = viewBox.split(/\s+/).map(Number);
     const aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
     const tan = Math.tan(T.MathUtils.degToRad(FOV / 2));
-    return { x: vx + vw / 2, y: vy + vh / 2, d: Math.max(vh / 2 / tan, vw / 2 / (tan * aspect)), phi: .001, theta: 0 };
+    return { x: vx + vw / 2, y: vy + vh / 2, h: 0, d: Math.max(vh / 2 / tan, vw / 2 / (tan * aspect)), phi: .001, theta: 0 };
   };
   const shortestTheta = to => {
     let d = to - cam.theta;
@@ -259,7 +274,7 @@
   };
   const fly = (to, dur, ease = "power3.inOut", onComplete) => {
     gsap.killTweensOf(cam);
-    gsap.to(cam, { ...to, theta: shortestTheta(to.theta), duration: dur, ease, onComplete });
+    gsap.to(cam, { h: 0, ...to, theta: shortestTheta(to.theta), duration: dur, ease, onComplete });
   };
 
   /* ---------- loop ---------- */
@@ -284,14 +299,19 @@
   const kick = () => { if (!raf && active && visible) { last = performance.now(); raf = requestAnimationFrame(frame); } };
 
   /* ---------- public ---------- */
-  const setState = key => {
+  const setState = (key, instant) => {
     state = key;
     setCrowd(key); setPolice(key); setRings(key); setRange(key); setLabels(key);
     const sh = SHOOTER[key];
     shooter.visible = !!sh;
     if (sh) { shooter.position.copy(v3(sh.at[0], sh.at[1])); const s = FIG * 1.35; shooter.scale.set(s, sh.kneel ? s * .62 : s, s); }
     eric.visible = !!ERIC[key];
+    stand(eric);
     if (ERIC[key]) eric.position.copy(v3(ERIC[key][0], ERIC[key][1]));
+    const hit = HIT[key], delay = active ? 1.7 : 1.9;
+    victims.forEach(stand);
+    victims.forEach((g, i) => { g.visible = !!hit && key !== "1504" && !!hit.at[i]; });
+    if (hit) hit.at.forEach((at, i) => fall(key === "1504" ? eric : victims[i], hit.from, at, delay, instant));
     fire.visible = fireLight.visible = FIRE.has(key);
   };
 
@@ -313,8 +333,8 @@
       scene.fog = new T.Fog(0xece5d8, 900, 2300);
       camera = new T.PerspectiveCamera(FOV, 1, 1, 6000);
 
-      scene.add(new T.HemisphereLight(0xffffff, 0xb7ab95, .72));
-      const sun = new T.DirectionalLight(0xfff4e6, .62);
+      scene.add(new T.HemisphereLight(0xffffff, 0xb7ab95, .56));
+      const sun = new T.DirectionalLight(0xfff4e6, .5);
       sun.position.set(-260, 520, 180);
       sun.castShadow = true;
       Object.assign(sun.shadow.camera, { left: -620, right: 620, top: 520, bottom: -520, near: 10, far: 1600 });
@@ -341,6 +361,7 @@
       [police, policeHeads] = instanced(MAX_POLICE, 0x1f3f78);
       shooter = figure(0xe11d2a, 0x5a0008);
       eric = figure(0xf2c230, 0x4a3600);
+      victims = [figure(0x3b3631), figure(0x3b3631)];
       ringsGroup = new T.Group(); scene.add(ringsGroup);
       fire = new T.Group();
       const flame = new T.Mesh(new T.ConeGeometry(6, 16, 12).translate(0, 8, 0), new T.MeshBasicMaterial({ color: 0xff7a1a }));
@@ -357,7 +378,7 @@
     },
     // Swap in from 2D: start overhead exactly where the SVG is framed, then tilt into the scene.
     enter(key, viewBox, instant) {
-      if (state !== key) setState(key);
+      if (state !== key) setState(key, instant);
       const target = CAMS[key] || CAMS["1420"];
       if (!active) {
         Object.assign(cam, topDownFor(viewBox));

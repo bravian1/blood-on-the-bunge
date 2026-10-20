@@ -799,6 +799,8 @@ a { color: inherit; }
   box-shadow: 0 1px 0 rgba(0,0,0,.15); margin-top: -6px; transition: opacity .2s;
 }
 .m3-lbl::after { content: ""; position: absolute; left: 50%; bottom: -5px; width: 1px; height: 5px; background: currentColor; opacity: .6; }
+.m3-lbl--below { margin-top: 8px; }
+.m3-lbl--below::after { bottom: auto; top: -5px; }
 .m3-lbl--red { color: #fff; background: var(--red); }
 .m3-lbl--yellow { color: var(--black); background: #f2c230; }
 .m3-lbl--crowd { color: #fff; background: #1d6b33; }
