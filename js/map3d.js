@@ -12,13 +12,13 @@
   // Crowd flows: polylines in map coordinates, with how many people walk each one.
   const FLOWS = {
     "0930": [],
-    "1300": [{ p: [[905, 15], [590, 170]], n: 70 }, { p: [[318, 25], [372, 148]], n: 45 }, { p: [[120, 345], [245, 290]], n: 45 }],
-    "1400": [{ p: [[905, 15], [470, 222]], n: 80 }, { p: [[318, 25], [400, 200]], n: 55 }, { p: [[120, 345], [372, 250]], n: 55 }],
-    "1414": [{ p: [[905, 15], [470, 222]], n: 80 }, { p: [[318, 25], [400, 200]], n: 55 }, { p: [[120, 345], [372, 250]], n: 55 }],
-    "1420": [{ p: [[420, 236], [496, 390]], n: 90 }, { p: [[760, 80], [440, 228]], n: 60 }, { p: [[340, 90], [410, 225]], n: 40 }],
-    "142x": [{ p: [[446, 308], [430, 262], [418, 236]], n: 90, speed: 2.4 }, { p: [[490, 340], [470, 282]], n: 30, speed: 2.4 }],
-    "1457": [{ p: [[512, 412], [452, 470]], n: 60 }, { p: [[538, 462], [478, 512]], n: 60 }, { p: [[488, 368], [432, 425]], n: 50 }, { p: [[440, 250], [500, 380]], n: 60 }],
-    "1504": [{ p: [[452, 470], [520, 432], [560, 400]], n: 80, speed: 2.6 }, { p: [[478, 505], [545, 462], [590, 440]], n: 60, speed: 2.6 }],
+    "1300": [{ p: [[905, 15], [590, 170]], n: 70 }, { p: [[326, 25], [372, 148]], n: 45 }, { p: [[120, 345], [215, 322], [245, 300]], n: 45 }],
+    "1400": [{ p: [[905, 15], [470, 222]], n: 80 }, { p: [[318, 25], [400, 200]], n: 55 }, { p: [[120, 345], [215, 322], [372, 250]], n: 55 }],
+    "1414": [{ p: [[905, 15], [470, 222]], n: 80 }, { p: [[318, 25], [400, 200]], n: 55 }, { p: [[120, 345], [215, 322], [372, 250]], n: 55 }],
+    "1420": [{ p: [[413, 240], [489, 392]], n: 90 }, { p: [[760, 80], [440, 228]], n: 60 }, { p: [[340, 90], [410, 225]], n: 40 }],
+    "142x": [{ p: [[446, 308], [430, 262], [418, 236]], n: 90, speed: 2.4 }, { p: [[498, 336], [480, 280]], n: 30, speed: 2.4 }],
+    "1457": [{ p: [[512, 412], [488, 440], [478, 452]], n: 60 }, { p: [[538, 462], [478, 512]], n: 60 }, { p: [[488, 368], [430, 392], [416, 420]], n: 50 }, { p: [[440, 250], [500, 380]], n: 60 }],
+    "1504": [{ p: [[494, 464], [528, 448], [564, 416]], n: 80, speed: 2.6 }, { p: [[478, 505], [545, 462], [590, 440]], n: 60, speed: 2.6 }],
     "eve": []
   };
   // Police and soldiers: lines of figures between two points.
@@ -37,13 +37,14 @@
   const HIT = { "142x": { from: [497, 410], at: [[452, 322, -.9], [462, 334, -1.3]] }, "1504": { from: [468, 424], at: [[505, 440]] } };
   const RINGS = { "142x": [[452, 322], [462, 334]], "1504": [[507, 439]], "eve": [[452, 322], [462, 334], [507, 439]] };
   const FIRE = new Set(["1420", "142x"]);
+  const TRUCK = { at: [473, 308], yaw: .46 };   // parked along Parliament Road, burning
   const RANGE = { "142x": [[456, 330], [494, 404], "≈ 50 m"], "1504": [[505, 440], [470, 425], "≈ 25 m"] };
   const LABELS = {
     "0930": [["MPs file in for the final vote", 428, 540, 30]],
     "1300": [["From the east", 760, 85, 4, "crowd"], ["From the north", 330, 60, 4, "crowd"], ["From the west", 150, 330, 4, "crowd"], ["Police lines", 575, 160, 10, "police"]],
     "1400": [["Last line of defence", 440, 275, 10, "police"]],
     "1414": [["195–106: the bill passes", 428, 540, 34]],
-    "1420": [["Police truck set alight", 452, 316, 18], ["Protesters reach Parliament Road", 470, 350, 8, "crowd"]],
+    "1420": [["Police truck set alight", 473, 308, 24], ["Protesters reach Parliament Road", 470, 350, 8, "crowd"]],
     "142x": [["David Chege", 452, 322, 10, "red"], ["Ericsson Mutisya", 462, 334, 0, "red", true], ["Police officer kneels, fires", 497, 410, 12, "red"]],
     "1457": [["Fences torn down; crowd crosses the lawns", 500, 430, 8, "crowd"]],
     "1504": [["Eric Shieni, at the exit", 505, 440, 20, "yellow"], ["Soldier fires", 468, 424, 12, "red"]],
@@ -65,7 +66,7 @@
   let renderer, scene, camera, stage, canvas, labelsEl, svgEl;
   let active = false, visible = true, state = null, raf = 0, last = 0, clock = 0;
   const cam = { x: CX, y: CZ, h: 0, d: 600, phi: .001, theta: 0 };
-  let crowd, crowdHeads, police, policeHeads, shooter, eric, victims = [], fire, fireLight, ringsGroup, rangeLine, labels = [];
+  let crowd, crowdHeads, police, policeHeads, shooter, eric, victims = [], fire, fireLight, flames = [], smoke = [], ringsGroup, rangeLine, labels = [];
   let agents = [];
   const MAX_CROWD = 260, MAX_POLICE = 24;
 
@@ -289,7 +290,16 @@
     if (!active || !visible) return;
     const dt = Math.min(.05, (now - last) / 1000 || 0); last = now; clock += dt;
     stepCrowd(dt);
-    if (fire.visible) { fireLight.intensity = 1.6 + Math.sin(clock * 23) * .5 + Math.random() * .4; fire.children[0].scale.y = 1 + Math.sin(clock * 17) * .2; }
+    if (fire.visible) {
+      fireLight.intensity = 1.6 + Math.sin(clock * 23) * .5 + Math.random() * .4;
+      flames.forEach((f, i) => { f.scale.set(1, 1 + Math.sin(clock * (13 + i * 4) + i) * .28, 1); });
+      smoke.forEach(m => {   // puffs rise, swell and thin out, drifting downwind
+        const t = (clock * .22 + m.userData.phase) % 1;
+        m.position.set(m.userData.x + t * 14, 7 + t * 46, m.userData.z + t * 5);
+        m.scale.setScalar(2.2 + t * 7);
+        m.material.opacity = .5 * (1 - t) * Math.min(1, t * 6);
+      });
+    }
     if (state === "eve" && !gsap.isTweening(cam)) cam.theta += dt * .06;
     applyCam();
     renderer.render(scene, camera);
@@ -363,12 +373,27 @@
       eric = figure(0xf2c230, 0x4a3600);
       victims = [figure(0x3b3631), figure(0x3b3631)];
       ringsGroup = new T.Group(); scene.add(ringsGroup);
+      // The burnt-out police truck: charred box body and cab, flames on the roof, smoke above.
       fire = new T.Group();
-      const flame = new T.Mesh(new T.ConeGeometry(6, 16, 12).translate(0, 8, 0), new T.MeshBasicMaterial({ color: 0xff7a1a }));
+      const truck = new T.Group(), box = (w, h, l, z, color) => {
+        const m = new T.Mesh(new T.BoxGeometry(w, h, l).translate(0, h / 2 + .8, z), new T.MeshLambertMaterial({ color }));
+        m.castShadow = m.receiveShadow = true; truck.add(m);
+      };
+      box(5, 4.6, 10, -1.5, 0x2b2a26); box(4.8, 3.6, 3.6, 5.6, 0x3b3d34); box(4.4, .8, 14, 0, 0x151513);
+      truck.rotation.y = TRUCK.yaw;
+      [[0, -3, 7, 0xff7a1a], [.6, .5, 9, 0xff9a24], [-.5, 3, 6, 0xffc23a], [0, 6, 5, 0xff7a1a]].forEach(([x, z, h, color]) => {
+        const f = new T.Mesh(new T.ConeGeometry(1.9, h, 9).translate(0, h / 2, 0), new T.MeshBasicMaterial({ color, transparent: true, opacity: .92 }));
+        f.position.set(x, 5.2, z); truck.add(f); flames.push(f);
+      });
       fireLight = new T.PointLight(0xff7a1a, 1.8, 120, 1.6);
-      fireLight.position.y = 10;
-      fire.add(flame, fireLight);
-      fire.position.copy(v3(452, 316, 2));
+      fireLight.position.y = 12;
+      for (let i = 0; i < 10; i++) {
+        const m = new T.Mesh(new T.SphereGeometry(1, 10, 8), new T.MeshLambertMaterial({ color: 0x55514b, transparent: true, depthWrite: false }));
+        m.userData = { phase: i / 10, x: (Math.random() - .5) * 4, z: (Math.random() - .5) * 8 };
+        smoke.push(m);
+      }
+      fire.add(truck, fireLight, ...smoke);
+      fire.position.copy(v3(TRUCK.at[0], TRUCK.at[1]));
       scene.add(fire);
 
       new IntersectionObserver(es => { visible = es[0].isIntersecting; kick(); }).observe(stage);
@@ -379,6 +404,7 @@
     // Swap in from 2D: start overhead exactly where the SVG is framed, then tilt into the scene.
     enter(key, viewBox, instant) {
       if (state !== key) setState(key, instant);
+      stage.classList.remove("is-leaving");   // re-entered mid-exit: that exit's onComplete will never fire
       const target = CAMS[key] || CAMS["1420"];
       if (!active) {
         Object.assign(cam, topDownFor(viewBox));
