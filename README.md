@@ -36,6 +36,9 @@ python3 dev/server.py    # then open http://127.0.0.1:8765
 - [16 dead in anniversary protests](https://www.cnn.com/2025/06/25/africa/kenya-anti-tax-anniversary-protests-intl), CNN / Amnesty Kenya, 25 Jun 2025
 - [Kenya's repression deepens](https://monitor.civicus.org/explore/kenyas-repression-deepens-65-more-killed-in-protests-blogger-tortured-killed/), CIVICUS Monitor, Aug 2025
 - [Two years on, Kenyan families still seek justice](https://www.aljazeera.com/news/2026/6/25/two-years-on-kenyan-families-still-seek-justice-after-gen-z-protests), Al Jazeera, 25 Jun 2026
+- [Gen Z protests: Remembering those we lost](https://nation.africa/kenya/news/gen-z-protests-remembering-those-we-lost-5091976), Daily Nation, 24 Jun 2025
+- [List of young people killed during 2024 Gen Z protests](https://peopledaily.digital/news/list-of-young-people-killed-during-2024-gen-z-protests), People Daily, 25 Jun 2025
+- [Kenyans who died during the anti-Finance Bill 2024 protests](https://www.tuko.co.ke/people/family/593909-rex-masai-kenyans-died-anti-finance-bill-2024-protests/), Tuko, 24 Jun 2025
 - [Families lay flowers on barbed wire on anniversary of deadly Kenya protests](https://www.bbc.com/news/articles/cgqjl8kj8wpo), BBC, 25 Jun 2026
 
 ## Credits and licence
